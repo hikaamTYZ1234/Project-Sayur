@@ -10,6 +10,8 @@ import '../features/notification/screens/notification_screen.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/search/screens/search_screen.dart';
+import '../features/elements/screens/elements_screen.dart';
+
 
 class AppRoutes {
   // ── Route name constants ──────────────────────────────────────────────────
@@ -23,6 +25,7 @@ class AppRoutes {
   static const String notification = '/notification';
   static const String profile = '/profile';
   static const String search = '/search';
+  static const String elements = '/elements';
 
   // ── Initial route ─────────────────────────────────────────────────────────
   static const String initialRoute = onboarding;
@@ -37,6 +40,7 @@ class AppRoutes {
     notification: (_) => const NotificationScreen(),
     profile: (_) => const ProfileScreen(),
     search: (_) => const SearchScreen(),
+    elements: (_) => const ElementsScreen(),
   };
 
   // ── onGenerateRoute — untuk screen yang butuh arguments ───────────────────
