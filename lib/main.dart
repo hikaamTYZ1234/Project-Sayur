@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'routes/app_routes.dart';
+import 'theme/app_theme.dart';
+import 'theme/theme_provider.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load tema yang tersimpan sebelumnya
+  final themeProvider = ThemeProvider();
+  await themeProvider.loadTheme();
+
+  runApp(
+    ChangeNotifierProvider.value(
+      value: themeProvider,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -10,10 +24,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
+      // ── Theme ──────────────────────────────────────────
+      theme:      AppTheme.lightTheme,
+      darkTheme:  AppTheme.darkTheme,
+      themeMode:  themeProvider.themeMode,
+
+      // ── Routes ─────────────────────────────────────────
       initialRoute: AppRoutes.login,
-      routes: AppRoutes.routes,
+      routes:       AppRoutes.routes,
     );
   }
 }
