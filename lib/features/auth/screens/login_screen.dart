@@ -258,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Image.asset(
-                          'assets/images/icons/google.png',
+                          'assets/google.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) =>
                               const Text(
@@ -292,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Image.asset(
-                          'assets/images/icons/facebook.png',
+                          'assets/facebook.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(
