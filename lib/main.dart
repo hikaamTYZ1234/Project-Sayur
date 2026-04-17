@@ -12,10 +12,7 @@ void main() async {
   await themeProvider.loadTheme();
 
   runApp(
-    ChangeNotifierProvider.value(
-      value: themeProvider,
-      child: const MyApp(),
-    ),
+    ChangeNotifierProvider.value(value: themeProvider, child: const MyApp()),
   );
 }
 
@@ -30,13 +27,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       // ── Theme ──────────────────────────────────────────
-      theme:      AppTheme.lightTheme,
-      darkTheme:  AppTheme.darkTheme,
-      themeMode:  themeProvider.themeMode,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
 
       // ── Routes ─────────────────────────────────────────
       initialRoute: AppRoutes.login,
-      routes:       AppRoutes.routes,
+      routes: AppRoutes.routes,
     );
   }
 }
