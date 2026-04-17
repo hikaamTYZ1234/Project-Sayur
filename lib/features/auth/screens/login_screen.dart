@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/theme_provider.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,25 +25,33 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // ── THEME (hanya ini yang berubah dari kode asli) ──────────────
+    final isDark = context.watch<ThemeProvider>().isDarkMode;
 
-    final Color bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
-    final Color textPrimary = isDark ? Colors.white : const Color(0xFF1A1A1A);
+    final Color bgColor =
+        isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
+    final Color textPrimary =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
     final Color textSecondary =
-        isDark ? const Color(0xFF9E9E9E) : const Color(0xFF757575);
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
     final Color fieldFill =
-        isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF5F5F5);
+        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
     final Color fieldBorder =
-        isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE0E0E0);
+        isDark ? AppColors.dividerDark : AppColors.dividerLight;
     final Color iconColor =
-        isDark ? const Color(0xFF9E9E9E) : const Color(0xFF9E9E9E);
+        isDark ? AppColors.iconInactiveDark : AppColors.iconInactiveLight;
     final Color logoBg =
-        isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF5F5F5);
+        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
     final Color createAccountBg =
-        isDark ? const Color(0xFF2C2C2C) : const Color(0xFFEEEEEE);
+        isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight;
     final Color createAccountText =
-        isDark ? const Color(0xFF9E9E9E) : const Color(0xFF757575);
-    const Color primaryGreen = Color(0xFF4CAF50);
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final Color primaryGreen =
+        isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen;
+    
+    // Warna hitam untuk teks tertentu (terlepas dari mode gelap/terang)
+    const Color blackColor = Colors.black;
+    // ───────────────────────────────────────────────────────────────
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -61,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Image.asset(
-                    'assets/images/icons/logo.png',
+                    'wortel_logo.png',
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) => Icon(
                       Icons.eco_rounded,
@@ -87,13 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 10),
 
-              // Subtitle
+              // Subtitle (diubah ke hitam)
               Text(
                 'Lorem ipsum dolor sit amet, consectetur\nadipiscing elit, sed do eiusmod tempor',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
-                  color: textSecondary,
+                  color: blackColor, // Diubah ke hitam
                   height: 1.5,
                 ),
               ),
@@ -111,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   hintText: 'info@example.com',
                   hintStyle: TextStyle(
-                    color: textSecondary,
+                    color: blackColor, // Diubah ke hitam
                     fontSize: 14,
                   ),
                   prefixIcon: Icon(
@@ -135,8 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: primaryGreen, width: 1.5),
+                    borderSide: BorderSide(color: primaryGreen, width: 1.5),
                   ),
                 ),
               ),
@@ -192,8 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: primaryGreen, width: 1.5),
+                    borderSide: BorderSide(color: primaryGreen, width: 1.5),
                   ),
                 ),
               ),
@@ -229,87 +238,92 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 24),
 
-              // Or sign in with
+              // Or sign in with (dipojok kiri, diubah ke hitam)
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Diubah ke spaceBetween
                 children: [
+                  // Teks "Or sign in with" di kiri
                   Text(
                     'Or sign in with',
                     style: TextStyle(
                       fontSize: 13,
-                      color: textSecondary,
+                      color: blackColor, // Diubah ke hitam
                     ),
                   ),
-                  const SizedBox(width: 14),
-
-                  // Google button
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: handle Google sign in
-                    },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: fieldFill,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: fieldBorder, width: 1),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Image.asset(
-                          'google_logo.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Text(
-                            'G',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF4285F4),
+                  
+                  // Logo Google dan Facebook di kanan
+                  Row(
+                    children: [
+                      // Google button
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: handle Google sign in
+                        },
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: fieldFill,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: fieldBorder, width: 1),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Image.asset(
+                              'google_logo.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Text(
+                                'G',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF4285F4),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(width: 10),
+                      const SizedBox(width: 10),
 
-                  // Facebook button
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: handle Facebook sign in
-                    },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1877F2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Image.asset(
-                          'facebook_logo.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                            Icons.facebook,
-                            color: Colors.white,
-                            size: 22,
+                      // Facebook button
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: handle Facebook sign in
+                        },
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF1877F2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Image.asset(
+                              'facebook_logo.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(
+                                Icons.facebook,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
 
               const SizedBox(height: 24),
 
-              // Forgot Password
+              // Forgot Password (diubah ke hitam)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -317,14 +331,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Forgot Password? ',
                     style: TextStyle(
                       fontSize: 13,
-                      color: textSecondary,
+                      color: blackColor, // Diubah ke hitam
                     ),
                   ),
                   GestureDetector(
                     onTap: () {
                       // TODO: navigate to reset password
                     },
-                    child: const Text(
+                    child: Text(
                       'Reset Password',
                       style: TextStyle(
                         fontSize: 13,
@@ -338,12 +352,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 10),
 
-              // Dont have any account
+              // Dont have any account (diubah ke hitam)
               Text(
                 "Don't have any account?",
                 style: TextStyle(
                   fontSize: 13,
-                  color: textSecondary,
+                  color: blackColor, // Diubah ke hitam
                 ),
               ),
 
