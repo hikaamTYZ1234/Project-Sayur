@@ -6,6 +6,9 @@ import '../../../theme/theme_provider.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // Warna hijau khusus disesuaikan dengan tema aplikasi "Sayur"
+  static const Color _sayurGreen = Color(0xFF3BA660);
+
   @override
   Widget build(BuildContext context) {
     // Memantau perubahan tema dari Provider buatan temanmu
@@ -27,9 +30,9 @@ class ProfileScreen extends StatelessWidget {
         ? AppColors.dividerDark
         : AppColors.dividerLight;
     final Color iconBg = isDark ? AppColors.primaryBgDark : AppColors.primaryBg;
-    final Color primaryGreen = isDark
-        ? AppColors.primaryGreenLight
-        : AppColors.primaryGreen;
+
+    // Menggunakan warna hijau khusus Sayur
+    final Color primaryGreen = _sayurGreen;
 
     // Border avatar mengikuti warna background scaffold agar menyatu
     final Color avatarBorder = bg;
@@ -51,7 +54,7 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 24),
               Divider(color: divider, thickness: 1, indent: 24, endIndent: 24),
               const SizedBox(height: 20),
-              _buildSavedMenu(context, textPrimary, isDark),
+              _buildSavedMenu(context, textPrimary, isDark, primaryGreen),
               const SizedBox(height: 32),
             ],
           ),
@@ -92,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
 
-          // Edit Icon (Kanan) - Tombol ganti tema sudah dihapus
+          // Edit Icon (Kanan)
           GestureDetector(
             onTap: () {},
             child: Icon(Icons.edit_outlined, color: textColor, size: 24),
@@ -163,8 +166,6 @@ class ProfileScreen extends StatelessWidget {
             child: const CircleAvatar(
               radius: 44,
               backgroundImage: AssetImage('assets/avatar.png'),
-              // Fallback jika gambar belum ditambahkan ke assets
-              // child: Icon(Icons.person, size: 48, color: Colors.white),
             ),
           ),
         ],
@@ -286,7 +287,12 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ── Saved Menu ───────────────────────────────────────────────────────────
-  Widget _buildSavedMenu(BuildContext context, Color textPrimary, bool isDark) {
+  Widget _buildSavedMenu(
+    BuildContext context,
+    Color textPrimary,
+    bool isDark,
+    Color primaryGreen,
+  ) {
     final List<Map<String, String>> savedItems = [
       {
         'title': 'Fresh Green Salad',
@@ -327,6 +333,7 @@ class ProfileScreen extends StatelessWidget {
                   category: item['category']!,
                   imagePath: item['image']!,
                   isDark: isDark,
+                  primaryGreen: primaryGreen,
                 );
               },
             ),
@@ -341,8 +348,8 @@ class ProfileScreen extends StatelessWidget {
     required String category,
     required String imagePath,
     required bool isDark,
+    required Color primaryGreen,
   }) {
-    // Warna fallback jika gambar gagal dimuat
     final Color fallbackBg = isDark
         ? AppColors.surfaceVariantDark
         : AppColors.primaryBg;
@@ -354,7 +361,6 @@ class ProfileScreen extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background Image
             Container(
               color: fallbackBg,
               child: Image.asset(
@@ -367,8 +373,8 @@ class ProfileScreen extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primaryGreen.withOpacity(0.6),
-                          AppColors.primaryGreen.withOpacity(0.3),
+                          primaryGreen.withOpacity(0.6),
+                          primaryGreen.withOpacity(0.3),
                         ],
                       ),
                     ),
@@ -382,7 +388,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            // Gradient gelap dari bawah ke atas agar text bisa dibaca
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -393,7 +398,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            // Text labels di atas gambar
             Positioned(
               bottom: 14,
               left: 14,
