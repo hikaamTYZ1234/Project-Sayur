@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/theme_provider.dart';
 
 // ============================================================
 //  DATA
 // ============================================================
-const _kGreen = Color(0xFF2ECC71);
-const _kGreenDark = Color(0xFF27AE60);
+// Warna hijau khusus disesuaikan dengan gambar onboarding "Sayur"
+const Color _sayurGreen = Color(0xFF3BA660);
 
 class _ComponentItem {
   final String name;
@@ -12,69 +15,69 @@ class _ComponentItem {
 }
 
 final List<_ComponentItem> _components = [
-  _ComponentItem('Accordion'),
-  _ComponentItem('Action Sheet'),
-  _ComponentItem('Appbar'),
-  _ComponentItem('Autocomplete'),
-  _ComponentItem('Badge'),
-  _ComponentItem('Buttons'),
-  _ComponentItem('Calendar / Date Picker'),
-  _ComponentItem('Cards'),
-  _ComponentItem('Cards Expandable'),
-  _ComponentItem('Checkbox'),
-  _ComponentItem('Chips / Tags'),
-  _ComponentItem('Color Picker'),
-  _ComponentItem('Contacts List'),
-  _ComponentItem('Content Block'),
-  _ComponentItem('Data Table'),
-  _ComponentItem('Dialog'),
-  _ComponentItem('Elevation'),
-  _ComponentItem('FAB'),
-  _ComponentItem('FAB Morph'),
-  _ComponentItem('Form Storage'),
-  _ComponentItem('Gauge'),
-  _ComponentItem('Grid / Layout Grid'),
-  _ComponentItem('Icons'),
-  _ComponentItem('Infinite Scroll'),
-  _ComponentItem('Inputs'),
-  _ComponentItem('Lazy Load'),
-  _ComponentItem('List View'),
-  _ComponentItem('List Index'),
-  _ComponentItem('Login Screen'),
-  _ComponentItem('Menu'),
-  _ComponentItem('Messages'),
-  _ComponentItem('Navbar'),
-  _ComponentItem('Notifications'),
-  _ComponentItem('Panel / Side Panels'),
-  _ComponentItem('Photo Browser'),
-  _ComponentItem('Picker'),
-  _ComponentItem('Popover'),
-  _ComponentItem('Popup'),
-  _ComponentItem('Preloader'),
-  _ComponentItem('Progress Bar'),
-  _ComponentItem('Pull To Refresh'),
-  _ComponentItem('Radio'),
-  _ComponentItem('Range Slider'),
-  _ComponentItem('Searchbar'),
-  _ComponentItem('Searchbar Expandable'),
-  _ComponentItem('Sheet Modal'),
-  _ComponentItem('Skeleton (Ghost) Layouts'),
-  _ComponentItem('Smart Select'),
-  _ComponentItem('Sortable List'),
-  _ComponentItem('Stepper'),
-  _ComponentItem('Subnavbar'),
-  _ComponentItem('Swipeout (Swipe To Delete)'),
-  _ComponentItem('Swiper Slider'),
-  _ComponentItem('Tabs'),
-  _ComponentItem('Text Editor'),
-  _ComponentItem('Timeline'),
-  _ComponentItem('Toast'),
-  _ComponentItem('Toggle'),
-  _ComponentItem('Toolbar & Tabbar'),
-  _ComponentItem('Tooltip'),
-  _ComponentItem('Treeview'),
-  _ComponentItem('Virtual List'),
-  _ComponentItem('vi - Mobile Video SSP'),
+  const _ComponentItem('Accordion'),
+  const _ComponentItem('Action Sheet'),
+  const _ComponentItem('Appbar'),
+  const _ComponentItem('Autocomplete'),
+  const _ComponentItem('Badge'),
+  const _ComponentItem('Buttons'),
+  const _ComponentItem('Calendar / Date Picker'),
+  const _ComponentItem('Cards'),
+  const _ComponentItem('Cards Expandable'),
+  const _ComponentItem('Checkbox'),
+  const _ComponentItem('Chips / Tags'),
+  const _ComponentItem('Color Picker'),
+  const _ComponentItem('Contacts List'),
+  const _ComponentItem('Content Block'),
+  const _ComponentItem('Data Table'),
+  const _ComponentItem('Dialog'),
+  const _ComponentItem('Elevation'),
+  const _ComponentItem('FAB'),
+  const _ComponentItem('FAB Morph'),
+  const _ComponentItem('Form Storage'),
+  const _ComponentItem('Gauge'),
+  const _ComponentItem('Grid / Layout Grid'),
+  const _ComponentItem('Icons'),
+  const _ComponentItem('Infinite Scroll'),
+  const _ComponentItem('Inputs'),
+  const _ComponentItem('Lazy Load'),
+  const _ComponentItem('List View'),
+  const _ComponentItem('List Index'),
+  const _ComponentItem('Login Screen'),
+  const _ComponentItem('Menu'),
+  const _ComponentItem('Messages'),
+  const _ComponentItem('Navbar'),
+  const _ComponentItem('Notifications'),
+  const _ComponentItem('Panel / Side Panels'),
+  const _ComponentItem('Photo Browser'),
+  const _ComponentItem('Picker'),
+  const _ComponentItem('Popover'),
+  const _ComponentItem('Popup'),
+  const _ComponentItem('Preloader'),
+  const _ComponentItem('Progress Bar'),
+  const _ComponentItem('Pull To Refresh'),
+  const _ComponentItem('Radio'),
+  const _ComponentItem('Range Slider'),
+  const _ComponentItem('Searchbar'),
+  const _ComponentItem('Searchbar Expandable'),
+  const _ComponentItem('Sheet Modal'),
+  const _ComponentItem('Skeleton (Ghost) Layouts'),
+  const _ComponentItem('Smart Select'),
+  const _ComponentItem('Sortable List'),
+  const _ComponentItem('Stepper'),
+  const _ComponentItem('Subnavbar'),
+  const _ComponentItem('Swipeout (Swipe To Delete)'),
+  const _ComponentItem('Swiper Slider'),
+  const _ComponentItem('Tabs'),
+  const _ComponentItem('Text Editor'),
+  const _ComponentItem('Timeline'),
+  const _ComponentItem('Toast'),
+  const _ComponentItem('Toggle'),
+  const _ComponentItem('Toolbar & Tabbar'),
+  const _ComponentItem('Tooltip'),
+  const _ComponentItem('Treeview'),
+  const _ComponentItem('Virtual List'),
+  const _ComponentItem('vi - Mobile Video SSP'),
 ];
 
 // ============================================================
@@ -88,48 +91,98 @@ class ElementsScreen extends StatefulWidget {
 }
 
 class _ElementsScreenState extends State<ElementsScreen> {
-  bool _isDarkMode = false;
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+  List<_ComponentItem> _filteredComponents = [];
 
-  Color get _bg =>
-      _isDarkMode ? const Color(0xFF121212) : const Color(0xFFF2F2F7);
-  Color get _cardBg => _isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
-  Color get _textPrimary =>
-      _isDarkMode ? Colors.white : const Color(0xFF1A1A1A);
-  Color get _textSecondary =>
-      _isDarkMode ? const Color(0xFF9E9E9E) : const Color(0xFF8E8E93);
-  Color get _divider =>
-      _isDarkMode ? const Color(0xFF2C2C2C) : const Color(0xFFE5E5EA);
-  Color get _chevron =>
-      _isDarkMode ? const Color(0xFF5A5A5E) : const Color(0xFFC7C7CC);
+  @override
+  void initState() {
+    super.initState();
+    _filteredComponents = _components;
+  }
+
+  void _filterComponents(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredComponents = _components;
+      } else {
+        _filteredComponents = _components
+            .where(
+              (item) => item.name.toLowerCase().contains(query.toLowerCase()),
+            )
+            .toList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.isDarkMode;
+
+    final Color bg = isDark ? AppColors.backgroundDark : AppColors.surfaceLight;
+    final Color cardBg = isDark
+        ? AppColors.surfaceDark
+        : AppColors.backgroundLight;
+    final Color textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color dividerColor = isDark
+        ? AppColors.dividerDark
+        : AppColors.dividerLight;
+    final Color chevronColor = isDark
+        ? const Color(0xFF5A5A5E)
+        : const Color(0xFFC7C7CC);
+
+    // Menggunakan warna hijau khusus Sayur
+    final Color primaryGreen = _sayurGreen;
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: bg,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildAppBar(),
-            _buildAboutTile(),
-            _buildSectionHeader('Components'),
+            _buildAppBar(textPrimary),
+            if (!_isSearching)
+              _buildAboutTile(cardBg, textPrimary, chevronColor, primaryGreen),
+            if (!_isSearching) _buildSectionHeader('Components', primaryGreen),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: _cardBg,
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: ListView.separated(
-                  padding: EdgeInsets.zero,
-                  itemCount: _components.length,
-                  separatorBuilder: (_, i) => Divider(
-                    color: _divider,
-                    height: 1,
-                    indent: 16,
-                    endIndent: 0,
-                  ),
-                  itemBuilder: (_, i) => _buildComponentTile(_components[i]),
-                ),
+                child: _filteredComponents.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No components found',
+                          style: TextStyle(color: textPrimary),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: EdgeInsets.zero,
+                        itemCount: _filteredComponents.length,
+                        separatorBuilder: (_, i) => Divider(
+                          color: dividerColor,
+                          height: 1,
+                          indent: 54,
+                          endIndent: 0,
+                        ),
+                        itemBuilder: (_, i) => _buildComponentTile(
+                          _filteredComponents[i],
+                          textPrimary,
+                          chevronColor,
+                          primaryGreen,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 12),
@@ -139,111 +192,174 @@ class _ElementsScreenState extends State<ElementsScreen> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(Color textPrimary) {
+    if (_isSearching) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _filteredComponents = _components;
+                });
+              },
+              child: Icon(Icons.arrow_back, color: textPrimary, size: 26),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                onChanged: _filterComponents,
+                autofocus: true,
+                style: TextStyle(color: textPrimary, fontSize: 16),
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintStyle: TextStyle(color: textPrimary.withOpacity(0.5)),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                _searchController.clear();
+                _filterComponents('');
+              },
+              child: Icon(Icons.close, color: textPrimary, size: 24),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () {},
-            child: Icon(Icons.search, color: _textPrimary, size: 24),
+            onTap: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            },
+            child: Icon(Icons.arrow_back, color: textPrimary, size: 26),
           ),
-          const Spacer(),
           Text(
             'Framework7',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: _textPrimary,
+              color: textPrimary,
             ),
           ),
-          const Spacer(),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => setState(() => _isDarkMode = !_isDarkMode),
-                child: Icon(
-                  _isDarkMode
-                      ? Icons.light_mode_outlined
-                      : Icons.dark_mode_outlined,
-                  color: _textPrimary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(Icons.arrow_forward, color: _textPrimary, size: 24),
-            ],
+          GestureDetector(
+            onTap: () => setState(() => _isSearching = true),
+            child: Icon(Icons.search, color: textPrimary, size: 26),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAboutTile() {
+  Widget _buildAboutTile(
+    Color cardBg,
+    Color textPrimary,
+    Color chevronColor,
+    Color primaryGreen,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: _cardBg,
+        color: cardBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-        leading: Icon(Icons.chevron_left, color: _chevron, size: 20),
+        leading: _buildGreenIcon(Icons.info_outline, primaryGreen),
         title: Text(
           'About Framework7',
-          textAlign: TextAlign.right,
-          style: TextStyle(fontSize: 15, color: _textPrimary),
+          textAlign: TextAlign.left,
+          style: TextStyle(fontSize: 15, color: textPrimary),
         ),
-        trailing: _buildGreenIcon(Icons.info_outline),
+        trailing: Icon(Icons.chevron_right, color: chevronColor, size: 20),
         onTap: () => _navigate('About Framework7'),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, Color primaryGreen) {
     return Padding(
-      padding: const EdgeInsets.only(left: 32, top: 12, bottom: 6),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Padding(
-          padding: const EdgeInsets.only(right: 16),
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: _kGreen,
-            ),
-          ),
+      padding: const EdgeInsets.only(left: 20, top: 16, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: primaryGreen,
         ),
       ),
     );
   }
 
-  Widget _buildComponentTile(_ComponentItem item) {
+  Widget _buildComponentTile(
+    _ComponentItem item,
+    Color textPrimary,
+    Color chevronColor,
+    Color primaryGreen,
+  ) {
+    bool isVi = item.name == 'vi - Mobile Video SSP';
     return ListTile(
       dense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-      leading: Icon(Icons.chevron_left, color: _chevron, size: 20),
+      leading: isVi
+          ? _buildYellowIcon()
+          : _buildGreenIcon(Icons.touch_app, primaryGreen), // Ikon seragam
       title: Text(
         item.name,
-        textAlign: TextAlign.right,
-        style: TextStyle(fontSize: 15, color: _textPrimary),
+        textAlign: TextAlign.left,
+        style: TextStyle(fontSize: 15, color: textPrimary),
       ),
-      trailing: _buildGreenIcon(Icons.code),
+      trailing: Icon(Icons.chevron_right, color: chevronColor, size: 20),
       onTap: () => _navigate(item.name),
     );
   }
 
-  Widget _buildGreenIcon(IconData icon) {
+  Widget _buildGreenIcon(IconData icon, Color primaryGreen) {
     return Container(
-      width: 30,
-      height: 30,
+      width: 28,
+      height: 28,
       decoration: BoxDecoration(
-        color: _kGreen,
-        borderRadius: BorderRadius.circular(8),
+        color: primaryGreen,
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Icon(icon, color: Colors.white, size: 18),
+    );
+  }
+
+  Widget _buildYellowIcon() {
+    return Container(
+      width: 28,
+      height: 28,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        color: Colors.yellow,
+        shape: BoxShape.circle,
+      ),
+      child: const Text(
+        'vi',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
     );
   }
 
@@ -251,8 +367,7 @@ class _ElementsScreenState extends State<ElementsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            ComponentDetailScreen(componentName: name, isDarkMode: _isDarkMode),
+        builder: (_) => ComponentDetailScreen(componentName: name),
       ),
     );
   }
@@ -261,297 +376,304 @@ class _ElementsScreenState extends State<ElementsScreen> {
 // ============================================================
 //  COMPONENT DETAIL SCREEN
 // ============================================================
-class ComponentDetailScreen extends StatefulWidget {
+class ComponentDetailScreen extends StatelessWidget {
   final String componentName;
-  final bool isDarkMode;
 
-  const ComponentDetailScreen({
-    super.key,
-    required this.componentName,
-    required this.isDarkMode,
-  });
-
-  @override
-  State<ComponentDetailScreen> createState() => _ComponentDetailScreenState();
-}
-
-class _ComponentDetailScreenState extends State<ComponentDetailScreen> {
-  late bool _isDarkMode;
-
-  @override
-  void initState() {
-    super.initState();
-    _isDarkMode = widget.isDarkMode;
-  }
-
-  Color get _bg =>
-      _isDarkMode ? const Color(0xFF121212) : const Color(0xFFF2F2F7);
-  Color get _cardBg => _isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
-  Color get _textPrimary =>
-      _isDarkMode ? Colors.white : const Color(0xFF1A1A1A);
-  Color get _textSecondary =>
-      _isDarkMode ? const Color(0xFF9E9E9E) : const Color(0xFF6B6B6B);
-  Color get _divider =>
-      _isDarkMode ? const Color(0xFF2C2C2C) : const Color(0xFFE5E5EA);
+  const ComponentDetailScreen({super.key, required this.componentName});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.isDarkMode;
+
+    final Color bg = isDark ? AppColors.backgroundDark : AppColors.surfaceLight;
+    final Color cardBg = isDark
+        ? AppColors.surfaceDark
+        : AppColors.backgroundLight;
+    final Color textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color textSecondary = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
+    final Color dividerColor = isDark
+        ? AppColors.dividerDark
+        : AppColors.dividerLight;
+
+    // Menggunakan warna hijau khusus Sayur
+    final Color primaryGreen = _sayurGreen;
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: bg,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildAppBar(),
-            Expanded(child: _buildContent()),
+            _buildAppBar(context, textPrimary),
+            Expanded(
+              child: _buildContent(
+                bg,
+                cardBg,
+                textPrimary,
+                textSecondary,
+                dividerColor,
+                primaryGreen,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context, Color textPrimary) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Icon(Icons.arrow_back, color: textPrimary, size: 26),
+          ),
+          const SizedBox(width: 16),
           Text(
-            widget.componentName,
+            componentName,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: _textPrimary,
+              color: textPrimary,
             ),
-          ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(Icons.arrow_back, color: _textPrimary, size: 24),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContent() {
-    switch (widget.componentName) {
+  Widget _buildContent(
+    Color bg,
+    Color cardBg,
+    Color textPrimary,
+    Color textSecondary,
+    Color divider,
+    Color primaryGreen,
+  ) {
+    switch (componentName) {
       case 'Accordion':
         return _AccordionDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Action Sheet':
         return _ActionSheetDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Buttons':
         return _ButtonsDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Cards':
         return _CardsDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Checkbox':
         return _CheckboxDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Chips / Tags':
         return _ChipsDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Data Table':
         return _DataTableDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Dialog':
         return _DialogDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'FAB':
         return _FabDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Gauge':
         return _GaugeDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Inputs':
         return _InputsDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'List View':
         return _ListViewDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Messages':
         return _MessagesDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Notifications':
         return _NotificationsDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Progress Bar':
         return _ProgressBarDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Radio':
         return _RadioDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Range Slider':
         return _RangeSliderDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Searchbar':
         return _SearchbarDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Stepper':
         return _StepperDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Swiper Slider':
         return _SwiperDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Tabs':
         return _TabsDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       case 'Toggle':
         return _ToggleDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          divider: _divider,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          divider: divider,
+          primaryGreen: primaryGreen,
         );
       case 'Timeline':
         return _TimelineDemo(
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
       default:
         return _GenericDemo(
-          componentName: widget.componentName,
-          isDarkMode: _isDarkMode,
-          bg: _bg,
-          cardBg: _cardBg,
-          textPrimary: _textPrimary,
-          textSecondary: _textSecondary,
+          componentName: componentName,
+          bg: bg,
+          cardBg: cardBg,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          primaryGreen: primaryGreen,
         );
     }
   }
 }
 
 // ============================================================
-//  DEMO WIDGETS
+//  DEMO WIDGETS (Full Version, Themed)
 // ============================================================
 
 // ── Accordion ────────────────────────────────────────────────
 class _AccordionDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary, divider;
+  final Color bg, cardBg, textPrimary, textSecondary, divider, primaryGreen;
   const _AccordionDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
     required this.divider,
+    required this.primaryGreen,
   });
   @override
   State<_AccordionDemo> createState() => _AccordionDemoState();
@@ -574,7 +696,7 @@ class _AccordionDemoState extends State<_AccordionDemo> {
             child: Text(
               'List View Accordion',
               style: TextStyle(
-                color: _kGreen,
+                color: widget.primaryGreen,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -610,8 +732,7 @@ class _AccordionDemoState extends State<_AccordionDemo> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                         child: Text(
-                          'This is dummy content for ${_items[i]}. '
-                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                          'This is dummy content for ${_items[i]}. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                           style: TextStyle(
                             color: widget.textSecondary,
                             fontSize: 13,
@@ -631,7 +752,7 @@ class _AccordionDemoState extends State<_AccordionDemo> {
             child: Text(
               'Opposite Side',
               style: TextStyle(
-                color: _kGreen,
+                color: widget.primaryGreen,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -689,14 +810,13 @@ class _AccordionDemoState extends State<_AccordionDemo> {
 
 // ── Action Sheet ─────────────────────────────────────────────
 class _ActionSheetDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _ActionSheetDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -718,7 +838,7 @@ class _ActionSheetDemo extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kGreen,
+                backgroundColor: primaryGreen,
                 minimumSize: const Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -783,14 +903,13 @@ class _ActionSheetDemo extends StatelessWidget {
 
 // ── Buttons ──────────────────────────────────────────────────
 class _ButtonsDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _ButtonsDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -802,13 +921,13 @@ class _ButtonsDemo extends StatelessWidget {
         children: [
           _label('Filled Buttons', textSecondary),
           const SizedBox(height: 8),
-          _btn('Green Button', _kGreen, Colors.white),
+          _btn('Green Button', primaryGreen, Colors.white),
           const SizedBox(height: 8),
           _btn('Dark Button', const Color(0xFF333333), Colors.white),
           const SizedBox(height: 20),
           _label('Outline Buttons', textSecondary),
           const SizedBox(height: 8),
-          _outlineBtn('Outline Green', _kGreen),
+          _outlineBtn('Outline Green', primaryGreen),
           const SizedBox(height: 8),
           _outlineBtn('Outline Red', Colors.red),
           const SizedBox(height: 20),
@@ -816,13 +935,15 @@ class _ButtonsDemo extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _roundBtn('Round', _kGreen, Colors.white),
+              Expanded(child: _roundBtn('Round', primaryGreen, Colors.white)),
               const SizedBox(width: 12),
-              _roundBtn(
-                'Outline',
-                Colors.transparent,
-                _kGreen,
-                border: _kGreen,
+              Expanded(
+                child: _roundBtn(
+                  'Outline',
+                  Colors.transparent,
+                  primaryGreen,
+                  border: primaryGreen,
+                ),
               ),
             ],
           ),
@@ -880,14 +1001,13 @@ class _ButtonsDemo extends StatelessWidget {
 
 // ── Cards ────────────────────────────────────────────────────
 class _CardsDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _CardsDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -911,7 +1031,7 @@ class _CardsDemo extends StatelessWidget {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: _kGreen,
+              color: primaryGreen,
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.all(16),
@@ -1006,14 +1126,13 @@ class _CardsDemo extends StatelessWidget {
 
 // ── Checkbox ─────────────────────────────────────────────────
 class _CheckboxDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, divider;
+  final Color bg, cardBg, textPrimary, divider, primaryGreen;
   const _CheckboxDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.divider,
+    required this.primaryGreen,
   });
   @override
   State<_CheckboxDemo> createState() => _CheckboxDemoState();
@@ -1044,7 +1163,7 @@ class _CheckboxDemoState extends State<_CheckboxDemo> {
                     _labels[i],
                     style: TextStyle(color: widget.textPrimary),
                   ),
-                  activeColor: _kGreen,
+                  activeColor: widget.primaryGreen,
                   controlAffinity: ListTileControlAffinity.trailing,
                 ),
                 if (i < _labels.length - 1)
@@ -1060,14 +1179,13 @@ class _CheckboxDemoState extends State<_CheckboxDemo> {
 
 // ── Chips ────────────────────────────────────────────────────
 class _ChipsDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _ChipsDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -1102,7 +1220,7 @@ class _ChipsDemo extends StatelessWidget {
                 .map(
                   (c) => Chip(
                     label: Text(c, style: const TextStyle(color: Colors.white)),
-                    backgroundColor: _kGreen,
+                    backgroundColor: primaryGreen,
                     deleteIcon: const Icon(
                       Icons.close,
                       size: 16,
@@ -1129,11 +1247,9 @@ class _ChipsDemo extends StatelessWidget {
             children: chips
                 .map(
                   (c) => Chip(
-                    label: Text(c, style: const TextStyle(color: _kGreen)),
+                    label: Text(c, style: TextStyle(color: primaryGreen)),
                     backgroundColor: Colors.transparent,
-                    shape: const StadiumBorder(
-                      side: BorderSide(color: _kGreen),
-                    ),
+                    shape: StadiumBorder(side: BorderSide(color: primaryGreen)),
                   ),
                 )
                 .toList(),
@@ -1146,15 +1262,14 @@ class _ChipsDemo extends StatelessWidget {
 
 // ── Data Table ───────────────────────────────────────────────
 class _DataTableDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary, divider;
+  final Color bg, cardBg, textPrimary, textSecondary, divider, primaryGreen;
   const _DataTableDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
     required this.divider,
+    required this.primaryGreen,
   });
 
   @override
@@ -1170,7 +1285,7 @@ class _DataTableDemo extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             headingTextStyle: TextStyle(
-              color: _kGreen,
+              color: primaryGreen,
               fontWeight: FontWeight.bold,
             ),
             dataTextStyle: TextStyle(color: textPrimary),
@@ -1200,14 +1315,13 @@ class _DataTableDemo extends StatelessWidget {
 
 // ── Dialog ───────────────────────────────────────────────────
 class _DialogDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _DialogDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -1239,7 +1353,7 @@ class _DialogDemo extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('OK', style: TextStyle(color: _kGreen)),
+                      child: Text('OK', style: TextStyle(color: primaryGreen)),
                     ),
                   ],
                 ),
@@ -1274,7 +1388,7 @@ class _DialogDemo extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('OK', style: TextStyle(color: _kGreen)),
+                      child: Text('OK', style: TextStyle(color: primaryGreen)),
                     ),
                   ],
                 ),
@@ -1292,7 +1406,7 @@ class _DialogDemo extends StatelessWidget {
         height: 46,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: _kGreen,
+            backgroundColor: primaryGreen,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -1305,14 +1419,13 @@ class _DialogDemo extends StatelessWidget {
 
 // ── FAB ──────────────────────────────────────────────────────
 class _FabDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _FabDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -1329,7 +1442,7 @@ class _FabDemo extends StatelessWidget {
           bottom: 24,
           right: 24,
           child: FloatingActionButton(
-            backgroundColor: _kGreen,
+            backgroundColor: primaryGreen,
             onPressed: () {},
             child: const Icon(Icons.add, color: Colors.white),
           ),
@@ -1338,7 +1451,7 @@ class _FabDemo extends StatelessWidget {
           bottom: 24,
           left: 24,
           child: FloatingActionButton.extended(
-            backgroundColor: _kGreen,
+            backgroundColor: primaryGreen,
             onPressed: () {},
             icon: const Icon(Icons.edit, color: Colors.white),
             label: const Text('Create', style: TextStyle(color: Colors.white)),
@@ -1351,14 +1464,13 @@ class _FabDemo extends StatelessWidget {
 
 // ── Gauge ────────────────────────────────────────────────────
 class _GaugeDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _GaugeDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
   @override
   State<_GaugeDemo> createState() => _GaugeDemoState();
@@ -1379,7 +1491,7 @@ class _GaugeDemoState extends State<_GaugeDemo> {
               width: 180,
               height: 180,
               child: CustomPaint(
-                painter: _GaugePainter(_value),
+                painter: _GaugePainter(_value, widget.primaryGreen),
                 child: Center(
                   child: Text(
                     '${(_value * 100).toInt()}%',
@@ -1396,8 +1508,8 @@ class _GaugeDemoState extends State<_GaugeDemo> {
             Slider(
               value: _value,
               onChanged: (v) => setState(() => _value = v),
-              activeColor: _kGreen,
-              inactiveColor: _kGreen.withOpacity(0.2),
+              activeColor: widget.primaryGreen,
+              inactiveColor: widget.primaryGreen.withOpacity(0.2),
             ),
           ],
         ),
@@ -1408,17 +1520,18 @@ class _GaugeDemoState extends State<_GaugeDemo> {
 
 class _GaugePainter extends CustomPainter {
   final double value;
-  _GaugePainter(this.value);
+  final Color color;
+  _GaugePainter(this.value, this.color);
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 10;
     final bgPaint = Paint()
-      ..color = _kGreen.withOpacity(0.15)
+      ..color = color.withOpacity(0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 14;
     final fgPaint = Paint()
-      ..color = _kGreen
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 14
       ..strokeCap = StrokeCap.round;
@@ -1438,15 +1551,14 @@ class _GaugePainter extends CustomPainter {
 
 // ── Inputs ───────────────────────────────────────────────────
 class _InputsDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary, divider;
+  final Color bg, cardBg, textPrimary, textSecondary, divider, primaryGreen;
   const _InputsDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
     required this.divider,
+    required this.primaryGreen,
   });
 
   @override
@@ -1461,7 +1573,7 @@ class _InputsDemo extends StatelessWidget {
       hintStyle: TextStyle(color: textSecondary),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: _kGreen),
+        borderSide: BorderSide(color: primaryGreen),
       ),
     );
     return SingleChildScrollView(
@@ -1506,15 +1618,14 @@ class _InputsDemo extends StatelessWidget {
 
 // ── List View ────────────────────────────────────────────────
 class _ListViewDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary, divider;
+  final Color bg, cardBg, textPrimary, textSecondary, divider, primaryGreen;
   const _ListViewDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
     required this.divider,
+    required this.primaryGreen,
   });
 
   @override
@@ -1538,8 +1649,8 @@ class _ListViewDemo extends StatelessWidget {
             Divider(height: 1, color: divider, indent: 16),
         itemBuilder: (_, i) => ListTile(
           leading: CircleAvatar(
-            backgroundColor: _kGreen.withOpacity(0.15),
-            child: Text('${i + 1}', style: const TextStyle(color: _kGreen)),
+            backgroundColor: primaryGreen.withOpacity(0.15),
+            child: Text('${i + 1}', style: TextStyle(color: primaryGreen)),
           ),
           title: Text(items[i], style: TextStyle(color: textPrimary)),
           subtitle: Text(
@@ -1555,14 +1666,13 @@ class _ListViewDemo extends StatelessWidget {
 
 // ── Messages ─────────────────────────────────────────────────
 class _MessagesDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _MessagesDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -1594,7 +1704,7 @@ class _MessagesDemo extends StatelessWidget {
                     maxWidth: MediaQuery.of(context).size.width * 0.7,
                   ),
                   decoration: BoxDecoration(
-                    color: isMe ? _kGreen : cardBg,
+                    color: isMe ? primaryGreen : cardBg,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(16),
                       topRight: const Radius.circular(16),
@@ -1636,7 +1746,7 @@ class _MessagesDemo extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               CircleAvatar(
-                backgroundColor: _kGreen,
+                backgroundColor: primaryGreen,
                 child: const Icon(Icons.send, color: Colors.white, size: 20),
               ),
             ],
@@ -1649,15 +1759,14 @@ class _MessagesDemo extends StatelessWidget {
 
 // ── Notifications ────────────────────────────────────────────
 class _NotificationsDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary, divider;
+  final Color bg, cardBg, textPrimary, textSecondary, divider, primaryGreen;
   const _NotificationsDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
     required this.divider,
+    required this.primaryGreen,
   });
 
   @override
@@ -1699,8 +1808,8 @@ class _NotificationsDemo extends StatelessWidget {
                   margin: const EdgeInsets.only(top: 6),
                   width: 10,
                   height: 10,
-                  decoration: const BoxDecoration(
-                    color: _kGreen,
+                  decoration: BoxDecoration(
+                    color: primaryGreen,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -1735,11 +1844,11 @@ class _NotificationsDemo extends StatelessWidget {
                             color: textPrimary,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Mark as read',
                           style: TextStyle(
                             fontSize: 12,
-                            color: _kGreen,
+                            color: primaryGreen,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1758,14 +1867,13 @@ class _NotificationsDemo extends StatelessWidget {
 
 // ── Progress Bar ─────────────────────────────────────────────
 class _ProgressBarDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _ProgressBarDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
   @override
   State<_ProgressBarDemo> createState() => _ProgressBarDemoState();
@@ -1780,20 +1888,23 @@ class _ProgressBarDemoState extends State<_ProgressBarDemo> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          _bar('Progress 44%', _p1, _kGreen),
+          _bar('Progress 44%', _p1, widget.primaryGreen),
           const SizedBox(height: 24),
           _bar('Progress 70%', _p2, Colors.blue),
           const SizedBox(height: 24),
           _bar('Progress 20%', _p3, Colors.orange),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Determinate',
-            style: TextStyle(color: _kGreen, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: widget.primaryGreen,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
-          const LinearProgressIndicator(
-            color: _kGreen,
-            backgroundColor: Color(0xFFE0F7EA),
+          LinearProgressIndicator(
+            color: widget.primaryGreen,
+            backgroundColor: widget.primaryGreen.withOpacity(0.2),
           ),
         ],
       ),
@@ -1812,7 +1923,10 @@ class _ProgressBarDemoState extends State<_ProgressBarDemo> {
           ),
           Text(
             '${(v * 100).toInt()}%',
-            style: const TextStyle(color: _kGreen, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: widget.primaryGreen,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -1832,14 +1946,13 @@ class _ProgressBarDemoState extends State<_ProgressBarDemo> {
 
 // ── Radio ────────────────────────────────────────────────────
 class _RadioDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, divider;
+  final Color bg, cardBg, textPrimary, divider, primaryGreen;
   const _RadioDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.divider,
+    required this.primaryGreen,
   });
   @override
   State<_RadioDemo> createState() => _RadioDemoState();
@@ -1875,7 +1988,7 @@ class _RadioDemoState extends State<_RadioDemo> {
                   _options[i],
                   style: TextStyle(color: widget.textPrimary),
                 ),
-                activeColor: _kGreen,
+                activeColor: widget.primaryGreen,
               ),
               if (i < _options.length - 1)
                 Divider(height: 1, color: widget.divider, indent: 16),
@@ -1889,14 +2002,13 @@ class _RadioDemoState extends State<_RadioDemo> {
 
 // ── Range Slider ─────────────────────────────────────────────
 class _RangeSliderDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _RangeSliderDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
   @override
   State<_RangeSliderDemo> createState() => _RangeSliderDemoState();
@@ -1923,8 +2035,8 @@ class _RangeSliderDemoState extends State<_RangeSliderDemo> {
           Slider(
             value: _single,
             onChanged: (v) => setState(() => _single = v),
-            activeColor: _kGreen,
-            inactiveColor: _kGreen.withOpacity(0.2),
+            activeColor: widget.primaryGreen,
+            inactiveColor: widget.primaryGreen.withOpacity(0.2),
           ),
           Text(
             '${(_single * 100).toInt()}',
@@ -1944,8 +2056,8 @@ class _RangeSliderDemoState extends State<_RangeSliderDemo> {
             min: 0,
             max: 100,
             onChanged: (v) => setState(() => _range = v),
-            activeColor: _kGreen,
-            inactiveColor: _kGreen.withOpacity(0.2),
+            activeColor: widget.primaryGreen,
+            inactiveColor: widget.primaryGreen.withOpacity(0.2),
           ),
           Text(
             '${_range.start.toInt()} – ${_range.end.toInt()}',
@@ -1959,14 +2071,13 @@ class _RangeSliderDemoState extends State<_RangeSliderDemo> {
 
 // ── Searchbar ────────────────────────────────────────────────
 class _SearchbarDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, divider;
+  final Color bg, cardBg, textPrimary, divider, primaryGreen;
   const _SearchbarDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.divider,
+    required this.primaryGreen,
   });
   @override
   State<_SearchbarDemo> createState() => _SearchbarDemoState();
@@ -2006,7 +2117,7 @@ class _SearchbarDemoState extends State<_SearchbarDemo> {
             decoration: InputDecoration(
               hintText: 'Search…',
               hintStyle: TextStyle(color: widget.textPrimary.withOpacity(0.4)),
-              prefixIcon: const Icon(Icons.search, color: _kGreen),
+              prefixIcon: Icon(Icons.search, color: widget.primaryGreen),
               filled: true,
               fillColor: widget.cardBg,
               border: OutlineInputBorder(
@@ -2015,7 +2126,7 @@ class _SearchbarDemoState extends State<_SearchbarDemo> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: _kGreen),
+                borderSide: BorderSide(color: widget.primaryGreen),
               ),
             ),
             style: TextStyle(color: widget.textPrimary),
@@ -2036,7 +2147,10 @@ class _SearchbarDemoState extends State<_SearchbarDemo> {
                     _filtered[i],
                     style: TextStyle(color: widget.textPrimary),
                   ),
-                  trailing: const Icon(Icons.chevron_right, color: _kGreen),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: widget.primaryGreen,
+                  ),
                 ),
               ),
             ),
@@ -2049,14 +2163,13 @@ class _SearchbarDemoState extends State<_SearchbarDemo> {
 
 // ── Stepper ──────────────────────────────────────────────────
 class _StepperDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, divider;
+  final Color bg, cardBg, textPrimary, divider, primaryGreen;
   const _StepperDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.divider,
+    required this.primaryGreen,
   });
   @override
   State<_StepperDemo> createState() => _StepperDemoState();
@@ -2075,7 +2188,7 @@ class _StepperDemoState extends State<_StepperDemo> {
       onStepCancel: () => setState(() {
         if (_currentStep > 0) _currentStep--;
       }),
-      connectorColor: MaterialStateProperty.all(_kGreen),
+      connectorColor: WidgetStateProperty.all(widget.primaryGreen),
       steps: [
         Step(
           title: Text('Account', style: TextStyle(color: widget.textPrimary)),
@@ -2110,14 +2223,13 @@ class _StepperDemoState extends State<_StepperDemo> {
 
 // ── Swiper Slider ────────────────────────────────────────────
 class _SwiperDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _SwiperDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
   @override
   State<_SwiperDemo> createState() => _SwiperDemoState();
@@ -2126,14 +2238,20 @@ class _SwiperDemo extends StatefulWidget {
 class _SwiperDemoState extends State<_SwiperDemo> {
   final PageController _ctrl = PageController();
   int _page = 0;
-  final _colors = [
-    _kGreen,
-    Colors.blue,
-    Colors.orange,
-    Colors.purple,
-    Colors.red,
-  ];
+  late List<Color> _colors;
   final _labels = ['Slide 1', 'Slide 2', 'Slide 3', 'Slide 4', 'Slide 5'];
+
+  @override
+  void initState() {
+    super.initState();
+    _colors = [
+      widget.primaryGreen,
+      Colors.blue,
+      Colors.orange,
+      Colors.purple,
+      Colors.red,
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2174,7 +2292,9 @@ class _SwiperDemoState extends State<_SwiperDemo> {
               width: _page == i ? 16 : 8,
               height: 8,
               decoration: BoxDecoration(
-                color: _page == i ? _kGreen : _kGreen.withOpacity(0.3),
+                color: _page == i
+                    ? widget.primaryGreen
+                    : widget.primaryGreen.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -2187,14 +2307,13 @@ class _SwiperDemoState extends State<_SwiperDemo> {
 
 // ── Tabs ─────────────────────────────────────────────────────
 class _TabsDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _TabsDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
   @override
   State<_TabsDemo> createState() => _TabsDemoState();
@@ -2221,9 +2340,9 @@ class _TabsDemoState extends State<_TabsDemo>
       children: [
         TabBar(
           controller: _tc,
-          labelColor: _kGreen,
+          labelColor: widget.primaryGreen,
           unselectedLabelColor: widget.textSecondary,
-          indicatorColor: _kGreen,
+          indicatorColor: widget.primaryGreen,
           tabs: const [
             Tab(text: 'Tab 1'),
             Tab(text: 'Tab 2'),
@@ -2251,14 +2370,13 @@ class _TabsDemoState extends State<_TabsDemo>
 
 // ── Toggle ───────────────────────────────────────────────────
 class _ToggleDemo extends StatefulWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, divider;
+  final Color bg, cardBg, textPrimary, divider, primaryGreen;
   const _ToggleDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.divider,
+    required this.primaryGreen,
   });
   @override
   State<_ToggleDemo> createState() => _ToggleDemoState();
@@ -2293,7 +2411,7 @@ class _ToggleDemoState extends State<_ToggleDemo> {
                   _labels[i],
                   style: TextStyle(color: widget.textPrimary),
                 ),
-                activeColor: _kGreen,
+                activeColor: widget.primaryGreen,
               ),
               if (i < _labels.length - 1)
                 Divider(height: 1, color: widget.divider, indent: 16),
@@ -2307,14 +2425,13 @@ class _ToggleDemoState extends State<_ToggleDemo> {
 
 // ── Timeline ─────────────────────────────────────────────────
 class _TimelineDemo extends StatelessWidget {
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _TimelineDemo({
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -2360,8 +2477,8 @@ class _TimelineDemo extends StatelessWidget {
                   Container(
                     width: 14,
                     height: 14,
-                    decoration: const BoxDecoration(
-                      color: _kGreen,
+                    decoration: BoxDecoration(
+                      color: primaryGreen,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -2369,7 +2486,7 @@ class _TimelineDemo extends StatelessWidget {
                     Expanded(
                       child: Container(
                         width: 2,
-                        color: _kGreen.withOpacity(0.3),
+                        color: primaryGreen.withOpacity(0.3),
                       ),
                     ),
                 ],
@@ -2390,7 +2507,7 @@ class _TimelineDemo extends StatelessWidget {
                       ),
                       Text(
                         e['time']!,
-                        style: const TextStyle(color: _kGreen, fontSize: 12),
+                        style: TextStyle(color: primaryGreen, fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -2412,15 +2529,14 @@ class _TimelineDemo extends StatelessWidget {
 // ── Generic Fallback ─────────────────────────────────────────
 class _GenericDemo extends StatelessWidget {
   final String componentName;
-  final bool isDarkMode;
-  final Color bg, cardBg, textPrimary, textSecondary;
+  final Color bg, cardBg, textPrimary, textSecondary, primaryGreen;
   const _GenericDemo({
     required this.componentName,
-    required this.isDarkMode,
     required this.bg,
     required this.cardBg,
     required this.textPrimary,
     required this.textSecondary,
+    required this.primaryGreen,
   });
 
   @override
@@ -2435,12 +2551,12 @@ class _GenericDemo extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _kGreen.withOpacity(0.12),
+                color: primaryGreen.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.widgets_outlined,
-                color: _kGreen,
+                color: primaryGreen,
                 size: 40,
               ),
             ),
@@ -2456,23 +2572,22 @@ class _GenericDemo extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'This is a demo of the $componentName component.\n'
-              'In a real implementation, the full interactive preview would be shown here.',
+              'This is a demo of the $componentName component.\nIn a real implementation, the full interactive preview would be shown here.',
               style: TextStyle(color: textSecondary, fontSize: 14, height: 1.5),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kGreen,
+                backgroundColor: primaryGreen,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 minimumSize: const Size(200, 46),
               ),
               onPressed: () {},
-              child: Text(
-                'Try $componentName',
+              child: const Text(
+                'Try it out',
                 style: TextStyle(color: Colors.white),
               ),
             ),
