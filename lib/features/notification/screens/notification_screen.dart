@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/theme_provider.dart';
-import '../../profile/screens/profile_screen.dart'; // Ganti path ini jika letak file profilmu berbeda
+import '../../profile/screens/profile_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -12,7 +12,10 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  // Data simulasi notifikasi - Sekarang berisi 8 item sesuai desain
+  // Warna hijau khusus disesuaikan dengan tema aplikasi "Sayur"
+  static const Color _sayurGreen = Color(0xFF3BA660);
+
+  // Data simulasi notifikasi (Total 8 Item)
   final List<Map<String, dynamic>> _notifications = [
     {
       'title': 'Apply Success',
@@ -57,7 +60,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
       'isUnread': false,
       'isRead': false,
     },
-    // ---- Tambahan item ke-7 dan ke-8 ----
     {
       'title': 'Apply Success',
       'message': 'You has apply an job in Queenify Group as UI Designer',
@@ -84,9 +86,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Memantau perubahan tema dari Provider
     final themeProvider = context.watch<ThemeProvider>();
     final isDark = themeProvider.isDarkMode;
 
+    // Mapping warna menggunakan AppColors dari temanmu
     final Color bg = isDark
         ? AppColors.backgroundDark
         : AppColors.backgroundLight;
@@ -99,9 +103,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     final Color dividerColor = isDark
         ? AppColors.dividerDark
         : AppColors.dividerLight;
-    final Color primaryGreen = isDark
-        ? AppColors.primaryGreenLight
-        : AppColors.primaryGreen;
 
     return Scaffold(
       backgroundColor: bg,
@@ -111,15 +112,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
             _buildAppBar(context, textPrimary),
             Expanded(
               child: ListView.builder(
-                itemCount:
-                    _notifications.length, // Sekarang akan me-render 8 item
+                itemCount: _notifications.length,
                 itemBuilder: (context, index) {
                   return _buildNotificationItem(
                     index,
                     textPrimary,
                     textSecondary,
                     dividerColor,
-                    primaryGreen,
                   );
                 },
               ),
@@ -137,10 +136,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Tombol Kembali (Kiri) - Menyesuaikan menu sebelumnya
+          // Tombol Kembali
           GestureDetector(
             onTap: () {
-              // Navigator.pop akan menghapus halaman saat ini dan kembali ke halaman sebelumnya
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               }
@@ -148,7 +146,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             child: Icon(Icons.arrow_back, color: textPrimary, size: 26),
           ),
 
-          // Judul (Tengah)
+          // Title
           Text(
             'Notifications',
             style: TextStyle(
@@ -158,10 +156,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
           ),
 
-          // Ikon Profil (Kanan) - Klik untuk pindah ke Profile
+          // Ikon Profil - Pindah ke ProfileScreen saat diklik
           GestureDetector(
             onTap: () {
-              // Navigasi pindah ke halaman ProfileScreen
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProfileScreen()),
@@ -180,7 +177,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     Color textPrimary,
     Color textSecondary,
     Color dividerColor,
-    Color primaryGreen,
   ) {
     final item = _notifications[index];
     final bool isUnread = item['isUnread'] as bool;
@@ -193,6 +189,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Title row with unread dot
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -200,8 +197,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     Container(
                       width: 10,
                       height: 10,
-                      decoration: BoxDecoration(
-                        color: primaryGreen,
+                      decoration: const BoxDecoration(
+                        color: _sayurGreen, // Menggunakan warna hijau khusus
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -218,6 +215,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ],
               ),
               const SizedBox(height: 6),
+
+              // Message
               Padding(
                 padding: EdgeInsets.only(left: isUnread ? 18.0 : 0),
                 child: Text(
@@ -230,6 +229,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               ),
               const SizedBox(height: 10),
+
+              // Time + Mark as read row
               Padding(
                 padding: EdgeInsets.only(left: isUnread ? 18.0 : 0),
                 child: Row(
@@ -250,7 +251,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: isRead ? textSecondary : primaryGreen,
+                          color: isRead
+                              ? textSecondary
+                              : _sayurGreen, // Menggunakan warna hijau khusus
                         ),
                       ),
                     ),
@@ -260,6 +263,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ],
           ),
         ),
+
+        // Divider
         Divider(color: dividerColor, thickness: 1, height: 1),
       ],
     );
