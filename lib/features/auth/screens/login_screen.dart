@@ -25,36 +25,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ── THEME (hanya ini yang berubah dari kode asli) ──────────────
     final isDark = context.watch<ThemeProvider>().isDarkMode;
 
-    final Color bgColor =
-        isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
-    final Color textPrimary =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color textSecondary =
-        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-    final Color fieldFill =
-        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
-    final Color fieldBorder =
-        isDark ? AppColors.dividerDark : AppColors.dividerLight;
-    final Color iconColor =
-        isDark ? AppColors.iconInactiveDark : AppColors.iconInactiveLight;
-    final Color logoBg =
-        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
-    final Color createAccountBg =
-        isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight;
-    final Color createAccountText =
-        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-    final Color primaryGreen =
-        isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen;
-    
-    // Warna hitam untuk teks tertentu (terlepas dari mode gelap/terang)
-    const Color blackColor = Colors.black;
-    // ───────────────────────────────────────────────────────────────
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 32.0),
@@ -66,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: logoBg,
+                  color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
@@ -77,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     errorBuilder: (context, error, stackTrace) => Icon(
                       Icons.eco_rounded,
                       size: 48,
-                      color: primaryGreen,
+                      color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
                     ),
                   ),
                 ),
@@ -85,91 +59,62 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 28),
 
-              // Welcome back
+              // Welcome back 
               Text(
                 'Welcome back',
-                style: TextStyle(
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: textPrimary,
-                  letterSpacing: 0.2,
                 ),
               ),
 
               const SizedBox(height: 10),
 
-              // Subtitle (diubah ke hitam)
+              // Subtitle 
               Text(
                 'Lorem ipsum dolor sit amet, consectetur\nadipiscing elit, sed do eiusmod tempor',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontSize: 13,
-                  color: blackColor, // Diubah ke hitam
                   height: 1.5,
                 ),
               ),
 
               const SizedBox(height: 32),
 
-              // Email field
+              // Email field 
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                style: TextStyle(
-                  color: textPrimary,
-                  fontSize: 14,
-                ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'info@example.com',
-                  hintStyle: TextStyle(
-                    color: blackColor, // Diubah ke hitam
+                  hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
                   ),
                   prefixIcon: Icon(
                     Icons.person_outline_rounded,
-                    color: iconColor,
+                    color: isDark ? AppColors.iconInactiveDark : AppColors.iconInactiveLight,
                     size: 20,
-                  ),
-                  filled: true,
-                  fillColor: fieldFill,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: fieldBorder, width: 1),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: fieldBorder, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: primaryGreen, width: 1.5),
                   ),
                 ),
               ),
 
               const SizedBox(height: 14),
 
-              // Password field
+              // Password field 
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                style: TextStyle(
-                  color: textPrimary,
-                  fontSize: 14,
-                ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Password',
-                  hintStyle: TextStyle(
-                    color: textSecondary,
+                  hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
                   ),
                   prefixIcon: Icon(
                     Icons.lock_outline_rounded,
-                    color: iconColor,
+                    color: isDark ? AppColors.iconInactiveDark : AppColors.iconInactiveLight,
                     size: 20,
                   ),
                   suffixIcon: IconButton(
@@ -177,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _obscurePassword
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: primaryGreen,
+                      color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
                       size: 20,
                     ),
                     onPressed: () {
@@ -186,30 +131,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       });
                     },
                   ),
-                  filled: true,
-                  fillColor: fieldFill,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: fieldBorder, width: 1),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: fieldBorder, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: primaryGreen, width: 1.5),
-                  ),
                 ),
               ),
 
               const SizedBox(height: 28),
 
-              // LOGIN button
+              // LOGIN button 
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -217,41 +144,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     // TODO: handle login
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'LOGIN',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                  child: const Text('LOGIN'),
                 ),
               ),
 
               const SizedBox(height: 24),
 
-              // Or sign in with (dipojok kiri, diubah ke hitam)
+              // Or sign in with 
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Diubah ke spaceBetween
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Teks "Or sign in with" di kiri
                   Text(
                     'Or sign in with',
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 13,
-                      color: blackColor, // Diubah ke hitam
                     ),
                   ),
                   
-                  // Logo Google dan Facebook di kanan
+                  // Logo Google dan Facebook
                   Row(
                     children: [
                       // Google button
@@ -263,20 +173,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: fieldFill,
+                            color: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,
                             shape: BoxShape.circle,
-                            border: Border.all(color: fieldBorder, width: 1),
+                            border: Border.all(
+                              color: isDark ? AppColors.dividerDark : AppColors.dividerLight, 
+                              width: 1
+                            ),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Image.asset(
                               'google_logo.png',
                               fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Text(
+                              errorBuilder: (context, error, stackTrace) => Text(
                                 'G',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF4285F4),
@@ -306,8 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Image.asset(
                               'facebook_logo.png',
                               fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(
+                              errorBuilder: (context, error, stackTrace) => const Icon(
                                 Icons.facebook,
                                 color: Colors.white,
                                 size: 22,
@@ -323,15 +234,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 24),
 
-              // Forgot Password (diubah ke hitam)
+              // Forgot Password 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Forgot Password? ',
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 13,
-                      color: blackColor, // Diubah ke hitam
                     ),
                   ),
                   GestureDetector(
@@ -342,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Reset Password',
                       style: TextStyle(
                         fontSize: 13,
-                        color: primaryGreen,
+                        color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -352,18 +262,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 10),
 
-              // Dont have any account (diubah ke hitam)
+              // Don't have any account 
               Text(
                 "Don't have any account?",
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontSize: 13,
-                  color: blackColor, // Diubah ke hitam
                 ),
               ),
 
               const SizedBox(height: 14),
 
-              // CREATE MY ACCOUNT button → navigasi ke RegisterScreen
+              // CREATE MY ACCOUNT button 
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -377,8 +286,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: createAccountBg,
-                    foregroundColor: createAccountText,
+                    backgroundColor: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,
+                    foregroundColor: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -390,7 +299,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
-                      color: createAccountText,
                     ),
                   ),
                 ),
