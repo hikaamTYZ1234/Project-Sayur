@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/theme_provider.dart';
+import '../../profile/screens/profile_screen.dart'; // Ganti path ini jika letak file profilmu berbeda
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -8,20 +12,7 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  bool _isDarkMode = false;
-
-  // --- Color Tokens ---
-  static const _green = Color(0xFF2ECC71);
-
-  Color get _bg => _isDarkMode ? const Color(0xFF121212) : Colors.white;
-  Color get _textPrimary =>
-      _isDarkMode ? Colors.white : const Color(0xFF1A1A1A);
-  Color get _textSecondary =>
-      _isDarkMode ? const Color(0xFF9E9E9E) : const Color(0xFF757575);
-  Color get _divider =>
-      _isDarkMode ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0);
-
-  // Notification data
+  // Data simulasi notifikasi - Sekarang berisi 8 item sesuai desain
   final List<Map<String, dynamic>> _notifications = [
     {
       'title': 'Apply Success',
@@ -62,7 +53,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
     {
       'title': 'Interview Calls',
       'message': 'Congratulations! You have interview calls',
-      'time': '7h ago',
+      'time': '9h ago',
+      'isUnread': false,
+      'isRead': false,
+    },
+    // ---- Tambahan item ke-7 dan ke-8 ----
+    {
+      'title': 'Apply Success',
+      'message': 'You has apply an job in Queenify Group as UI Designer',
+      'time': '8h ago',
+      'isUnread': false,
+      'isRead': false,
+    },
+    {
+      'title': 'Complete your profile',
+      'message':
+          'Please verify your profile information to continue using this app',
+      'time': '4h ago',
       'isUnread': false,
       'isRead': false,
     },
@@ -77,17 +84,43 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.isDarkMode;
+
+    final Color bg = isDark
+        ? AppColors.backgroundDark
+        : AppColors.backgroundLight;
+    final Color textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color textSecondary = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
+    final Color dividerColor = isDark
+        ? AppColors.dividerDark
+        : AppColors.dividerLight;
+    final Color primaryGreen = isDark
+        ? AppColors.primaryGreenLight
+        : AppColors.primaryGreen;
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: bg,
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(),
+            _buildAppBar(context, textPrimary),
             Expanded(
               child: ListView.builder(
-                itemCount: _notifications.length,
+                itemCount:
+                    _notifications.length, // Sekarang akan me-render 8 item
                 itemBuilder: (context, index) {
-                  return _buildNotificationItem(index);
+                  return _buildNotificationItem(
+                    index,
+                    textPrimary,
+                    textSecondary,
+                    dividerColor,
+                    primaryGreen,
+                  );
                 },
               ),
             ),
@@ -98,44 +131,43 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   // ── App Bar ──────────────────────────────────────────────────────────────
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context, Color textPrimary) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Back arrow
+          // Tombol Kembali (Kiri) - Menyesuaikan menu sebelumnya
           GestureDetector(
-            onTap: () => Navigator.maybePop(context),
-            child: Icon(Icons.arrow_back, color: _textPrimary, size: 26),
+            onTap: () {
+              // Navigator.pop akan menghapus halaman saat ini dan kembali ke halaman sebelumnya
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            },
+            child: Icon(Icons.arrow_back, color: textPrimary, size: 26),
           ),
 
-          // Title
+          // Judul (Tengah)
           Text(
             'Notifications',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: _textPrimary,
+              color: textPrimary,
             ),
           ),
 
-          // Profile icon + dark mode toggle
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => setState(() => _isDarkMode = !_isDarkMode),
-                child: Icon(
-                  _isDarkMode
-                      ? Icons.light_mode_outlined
-                      : Icons.dark_mode_outlined,
-                  color: _textPrimary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Icon(Icons.person_outline, color: _textPrimary, size: 26),
-            ],
+          // Ikon Profil (Kanan) - Klik untuk pindah ke Profile
+          GestureDetector(
+            onTap: () {
+              // Navigasi pindah ke halaman ProfileScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+            child: Icon(Icons.person_outline, color: textPrimary, size: 28),
           ),
         ],
       ),
@@ -143,7 +175,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   // ── Notification Item ────────────────────────────────────────────────────
-  Widget _buildNotificationItem(int index) {
+  Widget _buildNotificationItem(
+    int index,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+    Color primaryGreen,
+  ) {
     final item = _notifications[index];
     final bool isUnread = item['isUnread'] as bool;
     final bool isRead = item['isRead'] as bool;
@@ -155,7 +193,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title row with unread dot
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -163,8 +200,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     Container(
                       width: 10,
                       height: 10,
-                      decoration: const BoxDecoration(
-                        color: _green,
+                      decoration: BoxDecoration(
+                        color: primaryGreen,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -175,28 +212,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isRead ? _textSecondary : _textPrimary,
+                      color: isRead ? textSecondary : textPrimary,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 6),
-
-              // Message
               Padding(
                 padding: EdgeInsets.only(left: isUnread ? 18.0 : 0),
                 child: Text(
                   item['message'],
                   style: TextStyle(
                     fontSize: 14,
-                    color: _textSecondary,
+                    color: textSecondary,
                     height: 1.4,
                   ),
                 ),
               ),
               const SizedBox(height: 10),
-
-              // Time + Mark as read row
               Padding(
                 padding: EdgeInsets.only(left: isUnread ? 18.0 : 0),
                 child: Row(
@@ -207,7 +240,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: _textPrimary,
+                        color: textSecondary,
                       ),
                     ),
                     GestureDetector(
@@ -217,7 +250,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: isRead ? _textSecondary : _green,
+                          color: isRead ? textSecondary : primaryGreen,
                         ),
                       ),
                     ),
@@ -227,9 +260,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ],
           ),
         ),
-
-        // Divider
-        Divider(color: _divider, thickness: 1, height: 1),
+        Divider(color: dividerColor, thickness: 1, height: 1),
       ],
     );
   }

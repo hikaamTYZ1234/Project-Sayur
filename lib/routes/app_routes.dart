@@ -22,7 +22,7 @@ class AppRoutes {
   static const String elements = '/elements';
   static const String detailFood = '/detail-food';
 
-  static const String initialRoute = profile;
+  static const String initialRoute = notification;
 
   static Map<String, WidgetBuilder> get routes => {
     login: (_) => const LoginScreen(),
