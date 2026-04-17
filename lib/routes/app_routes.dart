@@ -12,7 +12,6 @@ import '../features/profile/screens/profile_screen.dart';
 import '../features/search/screens/search_screen.dart';
 import '../features/elements/screens/elements_screen.dart';
 
-
 class AppRoutes {
   // ── Route name constants ──────────────────────────────────────────────────
   static const String onboarding = '/onboarding';
@@ -89,13 +88,4 @@ class AppRoutes {
       ),
     );
   }
-}
-import '../features/auth/screens/login_screen.dart';
-
-class AppRoutes {
-  static const String login = '/login';
-
-  static Map<String, WidgetBuilder> get routes => {
-        login: (_) => const LoginScreen(),
-      };
 }
