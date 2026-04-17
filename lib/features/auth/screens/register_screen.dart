@@ -264,13 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, '/login');
-                    // atau jika pakai Navigator.push:
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => const LoginScreen(),
-                    //   ),
-                    // );
+             
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: loginBg,
@@ -301,9 +295,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-// LOGO SAYUR (diambil dari login_screen.dart)
-// ═════════════════════════════════════════════════════════════════════════════
+// LOGO SAYUR 
 class _VegetableLogo extends StatelessWidget {
   const _VegetableLogo();
 
