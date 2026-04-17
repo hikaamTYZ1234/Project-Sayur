@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/food/screens/detail_food_screen.dart';
@@ -10,6 +11,7 @@ import '../features/onboarding/screens/onboarding_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/search/screens/search_screen.dart';
 import '../features/elements/screens/elements_screen.dart';
+
 
 class AppRoutes {
   // ── Route name constants ──────────────────────────────────────────────────
@@ -25,7 +27,7 @@ class AppRoutes {
   static const String search = '/search';
   static const String elements = '/elements';
 
-  // ── Initial route (Balik ke Onboarding/Awal) ─────────────────────────────
+  // ── Initial route ─────────────────────────────────────────────────────────
   static const String initialRoute = onboarding;
 
   // ── Route map ─────────────────────────────────────────────────────────────
@@ -65,6 +67,7 @@ class AppRoutes {
     }
   }
 
+  // ── Helper: MaterialPageRoute dengan animasi default ─────────────────────
   static MaterialPageRoute<dynamic> _buildRoute(
     RouteSettings settings,
     Widget page,
@@ -72,6 +75,7 @@ class AppRoutes {
     return MaterialPageRoute(settings: settings, builder: (_) => page);
   }
 
+  // ── Helper: 404 page ──────────────────────────────────────────────────────
   static MaterialPageRoute<dynamic> _notFoundRoute(RouteSettings settings) {
     return MaterialPageRoute(
       settings: settings,
@@ -85,4 +89,13 @@ class AppRoutes {
       ),
     );
   }
+}
+import '../features/auth/screens/login_screen.dart';
+
+class AppRoutes {
+  static const String login = '/login';
+
+  static Map<String, WidgetBuilder> get routes => {
+        login: (_) => const LoginScreen(),
+      };
 }
