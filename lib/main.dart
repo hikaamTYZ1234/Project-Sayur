@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
 
       // ── Routes ─────────────────────────────────────────
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.initialRoute,
       routes: AppRoutes.routes,
     );
   }
