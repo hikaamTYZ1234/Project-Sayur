@@ -150,7 +150,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 24),
 
-              // Or sign in with 
+<<<<<<< HEAD
+              // Or sign in with -
+=======
+              // Or sign in with -
+>>>>>>> fitur-login
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
