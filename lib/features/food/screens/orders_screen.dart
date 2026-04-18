@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '/../../theme/app_colors.dart';
 import 'detail_location_screen.dart';
+import '../../main_menu/screens/main_menu_drawer.dart'; 
 
 // ─────────────────────────────────────────────────────────────────
 //  MODEL
@@ -129,13 +130,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   int _countTab(int tab) {
     if (tab == 1)
-      return _allOrders.where((o) => o.status == OrderStatus.onDelivery).length;
+      return _allOrders
+          .where((o) => o.status == OrderStatus.onDelivery)
+          .length;
     if (tab == 2)
       return _allOrders.where((o) => o.status == OrderStatus.done).length;
     return _allOrders.length;
   }
 
-  // ── Helper: satu garis hamburger ──────────────────────────────
+  // ── Helper: satu garis hamburger ─────────────────────────────
   Widget _buildHamburgerLine(double width, Color color) {
     return Container(
       width: width,
@@ -153,16 +156,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final isDark = theme.brightness == Brightness.dark;
     final filtered = _filtered;
 
-    // Warna teks AppBar (otomatis ikut tema)
     final textColor = isDark
         ? AppColors.textPrimaryDark
         : AppColors.textPrimaryLight;
 
     return Scaffold(
+      // ── Drawer terhubung ke MainMenuDrawer ───────────────────
+      drawer: const MainMenuDrawer(activeIndex: 1), // 1 = My Order
 
-      // ── AppBar dengan Hamburger custom ───────────────────────
+      // ── AppBar ───────────────────────────────────────────────
       appBar: AppBar(
-        automaticallyImplyLeading: false, // nonaktifkan back-button bawaan
+        automaticallyImplyLeading: false,
+        // ── Kiri: Hamburger menu ─────────────────────────────
         leading: Builder(
           builder: (context) => GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -173,16 +178,44 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildHamburgerLine(24, textColor), // garis panjang
+                  _buildHamburgerLine(24, textColor),
                   const SizedBox(height: 5),
-                  _buildHamburgerLine(18, textColor), // garis pendek
+                  _buildHamburgerLine(18, textColor),
                   const SizedBox(height: 5),
-                  _buildHamburgerLine(24, textColor), // garis panjang
+                  _buildHamburgerLine(24, textColor),
                 ],
               ),
             ),
           ),
         ),
+
+        // ── Tengah: Judul halaman ────────────────────────────
+        title: Text(
+          'Orders',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: textColor,
+          ),
+        ),
+        centerTitle: true,
+
+        // ── Kanan: Icon sort/filter (sesuai UI) ──────────────
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: Icon(
+                Icons.swap_vert_rounded, // ↑↓ icon sesuai screenshot
+                color: textColor,
+                size: 26,
+              ),
+              onPressed: () {
+                // TODO: aksi sort / filter
+              },
+            ),
+          ),
+        ],
       ),
 
       body: Column(
@@ -242,7 +275,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ],
       ),
 
-      // ── Place Order Button → navigasi ke DetailsScreen ────────
+      // ── Place Order Button → DetailsScreen ───────────────────
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -442,7 +475,9 @@ class _OrderCard extends StatelessWidget {
                   children: [
                     Text(
                       '\$${order.price.toStringAsFixed(1)}',
-                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 14,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),

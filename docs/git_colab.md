@@ -25,3 +25,7 @@ Already up to date.
 
 # 5. push github
 git push origin main
+
+# 6. jika di branch belum ada folder dari main lakuakan ini di branch
+git checkout fitur
+git pull origin main
