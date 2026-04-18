@@ -189,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 14),
 
               // ── LOGIN button ──────────────────────────────────────────
-              // Tombol LOGIN dengan warna abu-abu dan tanpa border hijau
+              // Tombol LOGIN d
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -199,8 +199,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isDark 
-                        ? AppColors.surfaceVariantDark  // Abu-abu gelap untuk dark mode
-                        : AppColors.surfaceVariantLight, // Abu-abu terang untuk light mode
+                        ? AppColors.surfaceVariantDark  
+                        : AppColors.surfaceVariantLight, 
                     foregroundColor: isDark 
                         ? AppColors.textSecondaryDark 
                         : AppColors.textSecondaryLight,

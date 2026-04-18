@@ -12,7 +12,6 @@ import '../features/profile/screens/profile_screen.dart';
 import '../features/search/screens/search_screen.dart';
 import '../features/elements/screens/elements_screen.dart';
 
-
 class AppRoutes {
   // ── Route name constants ──────────────────────────────────────────────────
   static const String onboarding = '/onboarding';
@@ -28,7 +27,8 @@ class AppRoutes {
   static const String elements = '/elements';
 
   // ── Initial route ─────────────────────────────────────────────────────────
-  static const String initialRoute = onboarding;
+  // Tentukan route awal (bisa onboarding atau login tergantung kondisi)
+  static const String initialRoute = onboarding; // ← GANTI JIKA PERLU
 
   // ── Route map ─────────────────────────────────────────────────────────────
   static Map<String, WidgetBuilder> get routes => {
@@ -45,6 +45,12 @@ class AppRoutes {
 
   // ── onGenerateRoute — untuk screen yang butuh arguments ───────────────────
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    // Cek dulu apakah route ada di routes map
+    if (routes.containsKey(settings.name)) {
+      return _buildRoute(settings, routes[settings.name]!(settings));
+    }
+
+    // Handle route dengan arguments
     switch (settings.name) {
       case detailFood:
         final args = settings.arguments as Map<String, dynamic>?;
@@ -89,13 +95,4 @@ class AppRoutes {
       ),
     );
   }
-}
-import '../features/auth/screens/login_screen.dart';
-
-class AppRoutes {
-  static const String login = '/login';
-
-  static Map<String, WidgetBuilder> get routes => {
-        login: (_) => const LoginScreen(),
-      };
 }
