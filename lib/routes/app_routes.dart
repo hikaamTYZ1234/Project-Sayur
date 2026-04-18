@@ -7,7 +7,7 @@ import '../features/food/screens/detail_location_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/messages/screens/message_list_screen.dart';
 import '../features/notification/screens/notification_screen.dart';
-import '../features/onboarding/screens/onboarding_screen.dart';
+import '../features/screens/onboarding_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/search/screens/search_screen.dart';
 import '../features/elements/screens/elements_screen.dart';
