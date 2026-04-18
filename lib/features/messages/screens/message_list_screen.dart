@@ -75,7 +75,16 @@ class _MessageListScreenState extends State<MessageListScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   // ---- THEME COLORS ----------------------------------------
-  
+  Color get bgColor       => _isDarkMode ? const Color(0xFF1A1A1A) : const Color(0xFFF2F2F2);
+  Color get surface2Color => _isDarkMode ? const Color(0xFF2E2E2E) : const Color(0xFFF9F9F9);
+  Color get borderColor   => _isDarkMode ? const Color(0xFF333333) : const Color(0xFFE0E0E0);
+  Color get textPrimary   => _isDarkMode ? const Color(0xFFF0F0F0) : const Color(0xFF1A1A1A);
+  Color get textSecondary => _isDarkMode ? const Color(0xFF888888) : const Color(0xFF555555);
+  Color get textMeta      => _isDarkMode ? const Color(0xFF555555) : const Color(0xFF999999);
+  Color get inputBg       => _isDarkMode ? const Color(0xFF2A2A2A) : const Color(0xFFFFFFFF);
+  Color get iconColor     => _isDarkMode ? const Color(0xFF888888) : const Color(0xFFAAAAAA);
+  Color get readColor     => _isDarkMode ? const Color(0xFF4CAF50) : const Color(0xFF2E7D32);
+  Color get pendingColor  => _isDarkMode ? const Color(0xFF888888) : const Color(0xFF999999);
 
   @override
   void dispose() {
@@ -111,12 +120,10 @@ class _MessageListScreenState extends State<MessageListScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Back button
           _iconButton(
             icon: Icons.arrow_back_ios_new_rounded,
             onTap: () => Navigator.maybePop(context),
           ),
-          // Title
           Text(
             'Messages List',
             style: TextStyle(
@@ -126,7 +133,6 @@ class _MessageListScreenState extends State<MessageListScreen> {
               letterSpacing: 0.3,
             ),
           ),
-          // Profile icon
           _iconButton(
             icon: Icons.person_outline_rounded,
             onTap: () {},
@@ -176,7 +182,9 @@ class _MessageListScreenState extends State<MessageListScreen> {
               width: 46,
               height: 26,
               decoration: BoxDecoration(
-                color: _isDarkMode ? const Color(0xFF333333) : const Color(0xFFCCCCCC),
+                color: _isDarkMode
+                    ? const Color(0xFF333333)
+                    : const Color(0xFFCCCCCC),
                 borderRadius: BorderRadius.circular(99),
               ),
               child: Stack(
@@ -282,7 +290,7 @@ class _MessageListScreenState extends State<MessageListScreen> {
   Widget _buildMessageItem(MessageModel msg) {
     return InkWell(
       onTap: () {
-        // Navigate to chat detail
+        // TODO: Navigate to chat detail
       },
       splashColor: surface2Color,
       highlightColor: surface2Color,
@@ -319,7 +327,6 @@ class _MessageListScreenState extends State<MessageListScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name + Status row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -352,7 +359,6 @@ class _MessageListScreenState extends State<MessageListScreen> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  // Preview
                   Text(
                     msg.preview,
                     style: TextStyle(
@@ -363,21 +369,20 @@ class _MessageListScreenState extends State<MessageListScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                    // Time
-                    Text(
-                      msg.time,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textMeta,
-                      ),
+                  Text(
+                    msg.time,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: textMeta,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
+  }
 }
