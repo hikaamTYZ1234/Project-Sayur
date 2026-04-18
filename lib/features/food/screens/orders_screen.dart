@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '/../../theme/app_colors.dart';
 import 'detail_location_screen.dart';
 
-
 // ─────────────────────────────────────────────────────────────────
 //  MODEL
 // ─────────────────────────────────────────────────────────────────
@@ -34,7 +33,7 @@ class OrderItem {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  DATA DUMMY — 5 item: 3 On Delivery, 2 Done
+//  DATA DUMMY
 // ─────────────────────────────────────────────────────────────────
 final List<OrderItem> _allOrders = [
   const OrderItem(
@@ -90,7 +89,7 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  int _selectedTab = 0; // 0=All, 1=On Delivery, 2=Done
+  int _selectedTab = 0;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -108,7 +107,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     super.dispose();
   }
 
-  // ── Filter logic ────────────────────────────────────────────────
   List<OrderItem> get _filtered {
     List<OrderItem> list;
     switch (_selectedTab) {
@@ -137,19 +135,52 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return _allOrders.length;
   }
 
+  // ── Helper: satu garis hamburger ──────────────────────────────
+  Widget _buildHamburgerLine(double width, Color color) {
+    return Container(
+      width: width,
+      height: 2.5,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final filtered = _filtered;
 
+    // Warna teks AppBar (otomatis ikut tema)
+    final textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+
     return Scaffold(
 
+      // ── AppBar dengan Hamburger custom ───────────────────────
       appBar: AppBar(
+        automaticallyImplyLeading: false, // nonaktifkan back-button bawaan
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+          builder: (context) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Scaffold.of(context).openDrawer(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildHamburgerLine(24, textColor), // garis panjang
+                  const SizedBox(height: 5),
+                  _buildHamburgerLine(18, textColor), // garis pendek
+                  const SizedBox(height: 5),
+                  _buildHamburgerLine(24, textColor), // garis panjang
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -157,7 +188,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Search Bar ──────────────────────────────────────
+          // ── Search Bar ───────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             child: TextField(
@@ -211,19 +242,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ],
       ),
 
-      // ── Place Order Button ─────────────────────────────────────
+      // ── Place Order Button → navigasi ke DetailsScreen ────────
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 65), // tinggi tombol
+              minimumSize: const Size(double.infinity, 65),
             ),
             onPressed: filtered.isEmpty
                 ? null
                 : () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const DetailsScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const DetailsScreen(),
+                      ),
                     );
                   },
             child: const Text('PLACE ORDER', style: TextStyle(fontSize: 18)),
@@ -235,7 +268,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  WIDGET: Tab Selector dengan badge jumlah
+//  WIDGET: Tab Selector
 // ─────────────────────────────────────────────────────────────────
 class _TabSelector extends StatelessWidget {
   final List<String> tabs;
@@ -293,7 +326,6 @@ class _TabSelector extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Label tab
                     Text(
                       tabs[i],
                       style: TextStyle(
@@ -310,7 +342,6 @@ class _TabSelector extends StatelessWidget {
                                   : AppColors.textSecondaryLight),
                       ),
                     ),
-                    // Badge jumlah
                     const SizedBox(width: 5),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -366,7 +397,6 @@ class _OrderCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ── Foto makanan ──────────────────────────────────
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
@@ -393,15 +423,11 @@ class _OrderCard extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(width: 14),
-
-          // ── Info produk ──────────────────────────────────
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Nama
                 Text(
                   order.name,
                   style: theme.textTheme.titleSmall?.copyWith(
@@ -412,8 +438,6 @@ class _OrderCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 10),
-
-                // Harga | Qty | Total
                 Row(
                   children: [
                     Text(
