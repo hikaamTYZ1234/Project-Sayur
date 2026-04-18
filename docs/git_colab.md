@@ -13,7 +13,7 @@ git commit -m "feat: add login authentication"
 git checkout main
 
 # 5. gabungkan 
-
+git merge feature/Home
 
 
 # 5. cek
