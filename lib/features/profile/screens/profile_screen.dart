@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/theme_provider.dart';
 
+// Import file drawer buatan teman Mas
+import '../../main_menu/screens/main_menu_drawer.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -39,6 +42,11 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bg,
+
+      // 👇 DRAWER TERPASANG DI SINI 👇
+      // activeIndex: 3 karena Profile ada di index ke-3 pada menu
+      drawer: const MainMenuDrawer(activeIndex: 3),
+
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -71,18 +79,31 @@ class ProfileScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Hamburger menu (Kiri)
-          GestureDetector(
-            onTap: () {},
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHamburgerLine(24, textColor),
-                const SizedBox(height: 5),
-                _buildHamburgerLine(18, textColor),
-                const SizedBox(height: 5),
-                _buildHamburgerLine(24, textColor),
-              ],
-            ),
+          Builder(
+            builder: (context) {
+              return GestureDetector(
+                // 👇 INI KUNCINYA 👇
+                // HitTestBehavior.opaque memaksa ruang kosong di antara garis ikut bisa diklik
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                // Tambahkan padding agar area klik tombol ini lebih besar & nyaman dipencet
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12, top: 4, bottom: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHamburgerLine(24, textColor),
+                      const SizedBox(height: 5),
+                      _buildHamburgerLine(18, textColor),
+                      const SizedBox(height: 5),
+                      _buildHamburgerLine(24, textColor),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
 
           // Title (Tengah)

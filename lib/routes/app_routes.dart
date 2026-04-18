@@ -7,9 +7,6 @@ import '../features/food/screens/orders_screen.dart';
 import '../features/main_menu/screens/color_themes_screen.dart';
 import '../features/main_menu/screens/main_menu_drawer.dart';
 
-
-
-
 class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';

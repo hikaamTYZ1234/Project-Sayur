@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // Pastikan path import di bawah ini sesuai dengan struktur folder Anda
-import 'routes/app_routes.dart'; 
+import 'routes/app_routes.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
 
@@ -27,7 +27,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final String initialRoute;
-  
+
   // Constructor yang benar
   const MyApp({super.key, required this.initialRoute});
 
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
+
       // Menggunakan tema dari AppTheme
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
