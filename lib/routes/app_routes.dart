@@ -4,6 +4,7 @@ import '../features/auth/screens/register_screen.dart';
 import '../features/messages/screens/message_list_screen.dart';
 import '../features/messages/screens/chat_detail.dart';
 import '../features/food/screens/orders_screen.dart';
+import '../features/main_menu/screens/color_themes_screen.dart';
 
 
 
@@ -13,6 +14,7 @@ class AppRoutes {
   static const String messageList = '/message-list';
   static const String chatDetail = '/chat-detail';
   static const String orders = '/orders';
+  static const String colorThemes = '/color-themes';
 
   // Tambahkan ini agar 'AppRoutes.routes' di main.dart tidak error
   static Map<String, WidgetBuilder> get routes => {
@@ -21,6 +23,7 @@ class AppRoutes {
     messageList: (context) => const MessageListScreen(),
     chatDetail: (context) => const ChatDetailScreen(),
     orders: (context) => const OrdersScreen(),
+    colorThemes: (context) => const ColorThemesScreen(),
   };
 
   // Tambahkan ini agar 'AppRoutes.onGenerateRoute' di main.dart tidak error
