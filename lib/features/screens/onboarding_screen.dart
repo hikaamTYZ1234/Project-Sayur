@@ -59,14 +59,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _navigateToRegister() async {
     await _completeOnboarding();
     if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.register);
+      Navigator.pushReplacementNamed(context, AppRoutes.messages);
     }
   }
 
   Future<void> _navigateToLogin() async {
     await _completeOnboarding();
     if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
+     Navigator.pushReplacementNamed(context, AppRoutes.messages);
     }
   }
 

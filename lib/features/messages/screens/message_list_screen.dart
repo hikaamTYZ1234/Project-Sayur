@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../theme/theme_provider.dart';
+import '../../../theme/app_colors.dart';
 
 // ============================================================
 // MODEL
@@ -7,62 +10,60 @@ class MessageModel {
   final String name;
   final String preview;
   final String time;
-  final String avatarUrl;
+  final String avatarPath; // REVISI: Menggunakan path asset lokal
   final bool isRead;
 
   const MessageModel({
     required this.name,
     required this.preview,
     required this.time,
-    required this.avatarUrl,
+    required this.avatarPath,
     required this.isRead,
   });
 }
 
 // ============================================================
-// DUMMY DATA
+// DUMMY DATA (Input dari folder assets)
 // ============================================================
 const List<MessageModel> dummyMessages = [
   MessageModel(
     name: 'Sam Verdinand',
     preview: 'OK. Lorem ipsum dolor sect...',
     time: '2m ago',
-    avatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
+    avatarPath:
+        'assets/vanpersi.png', // Sesuaikan dengan nama file di folder assets Anda
     isRead: true,
   ),
   MessageModel(
     name: 'Freddie Ronan',
     preview: 'OK. Lorem ipsum dolor sect...',
     time: '2m ago',
-    avatarUrl: 'https://randomuser.me/api/portraits/men/45.jpg',
+    avatarPath: 'assets/fereddie.png',
     isRead: false,
   ),
   MessageModel(
     name: 'Ethan Jacoby',
     preview: 'OK. Lorem ipsum dolor sect...',
     time: '2m ago',
-    avatarUrl: 'https://randomuser.me/api/portraits/women/68.jpg',
+    avatarPath: 'assets/ethan.png',
     isRead: true,
   ),
   MessageModel(
-    name: 'Alfie Mason',
+    name: 'alfie manson',
     preview: 'OK. Lorem ipsum dolor sect...',
     time: '2m ago',
-    avatarUrl: 'https://randomuser.me/api/portraits/men/76.jpg',
+    avatarPath: 'assets/alfiemanson.png',
     isRead: false,
   ),
   MessageModel(
-    name: 'Archie Parker',
+    name: 'archie parker',
     preview: 'OK. Lorem ipsum dolor sect...',
     time: '2m ago',
-    avatarUrl: 'https://randomuser.me/api/portraits/men/52.jpg',
+    avatarPath: 'assets/archieparker.png',
     isRead: true,
   ),
 ];
 
-// ============================================================
-// SCREEN
-// ============================================================
 class MessageListScreen extends StatefulWidget {
   const MessageListScreen({super.key});
 
@@ -71,11 +72,7 @@ class MessageListScreen extends StatefulWidget {
 }
 
 class _MessageListScreenState extends State<MessageListScreen> {
-  bool _isDarkMode = true;
   final TextEditingController _searchController = TextEditingController();
-
-  // ---- THEME COLORS ----------------------------------------
-  
 
   @override
   void dispose() {
@@ -85,181 +82,171 @@ class _MessageListScreenState extends State<MessageListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      color: bgColor,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(),
-              _buildThemeToggle(),
-              _buildSearchBar(),
-              Expanded(child: _buildMessageList()),
-            ],
-          ),
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(isDark),
+            _buildSearchBar(isDark),
+            Expanded(child: _buildMessageList(isDark)),
+          ],
         ),
       ),
     );
   }
 
-  // ---- HEADER ----------------------------------------------
-  Widget _buildHeader() {
+  // ---- HEADER & SEARCH BAR ----
+  Widget _buildHeader(bool isDark) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Back button
           _iconButton(
             icon: Icons.arrow_back_ios_new_rounded,
             onTap: () => Navigator.maybePop(context),
+            isDark: isDark,
           ),
-          // Title
           Text(
             'Messages List',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: textPrimary,
-              letterSpacing: 0.3,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: isDark
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
             ),
           ),
-          // Profile icon
           _iconButton(
             icon: Icons.person_outline_rounded,
             onTap: () {},
+            isDark: isDark,
           ),
         ],
       ),
     );
   }
 
-  Widget _iconButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _iconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: Icon(icon, size: 22, color: textSecondary),
+      child: Icon(
+        icon,
+        size: 22,
+        color: isDark ? AppColors.iconDark : AppColors.iconLight,
       ),
     );
   }
 
-  // ---- THEME TOGGLE ----------------------------------------
-  Widget _buildThemeToggle() {
+  Widget _buildSearchBar(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '🌙 Dark',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: textSecondary,
-              letterSpacing: 0.5,
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 16),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Find messages here...',
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: isDark ? AppColors.iconDark : AppColors.iconLight,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---- MESSAGE LIST ----
+  Widget _buildMessageList(bool isDark) {
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 20),
+      itemCount: dummyMessages.length,
+      itemBuilder: (context, index) =>
+          _buildMessageItem(dummyMessages[index], isDark),
+    );
+  }
+
+  Widget _buildMessageItem(MessageModel msg, bool isDark) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+              width: 1,
             ),
           ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () => setState(() => _isDarkMode = !_isDarkMode),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 46,
-              height: 26,
-              decoration: BoxDecoration(
-                color: _isDarkMode ? const Color(0xFF333333) : const Color(0xFFCCCCCC),
-                borderRadius: BorderRadius.circular(99),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+        child: Row(
+          children: [
+            // REVISI: Menggunakan Image.asset untuk input lokal
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: SizedBox(
+                width: 54,
+                height: 54,
+                child: Image.asset(
+                  msg.avatarPath,
+                  fit: BoxFit.cover,
+                  // Placeholder jika file asset tidak ditemukan
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: isDark
+                        ? AppColors.surfaceDark
+                        : AppColors.surfaceLight,
+                    child: Icon(
+                      Icons.person,
+                      color: isDark ? AppColors.iconDark : AppColors.iconLight,
+                    ),
+                  ),
+                ),
               ),
-              child: Stack(
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    top: 3,
-                    left: _isDarkMode ? 3 : 23,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: _isDarkMode
-                            ? const Color(0xFFF0F0F0)
-                            : const Color(0xFF1A1A1A),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        msg.name,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimaryLight,
+                            ),
                       ),
+                      _buildStatusIndicator(msg.isRead),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    msg.preview,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    msg.time,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: isDark
+                          ? AppColors.textHintDark
+                          : AppColors.textHintLight,
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            '☀️ Light',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: textSecondary,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---- SEARCH BAR ------------------------------------------
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          color: inputBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor, width: 1.5),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, color: iconColor, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                style: TextStyle(
-                  color: textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Find food here...',
-                  hintStyle: TextStyle(
-                    color: _isDarkMode
-                        ? const Color(0xFF555555)
-                        : const Color(0xFFBBBBBB),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 15,
-                  ),
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                  border: InputBorder.none,
-                ),
               ),
             ),
           ],
@@ -268,116 +255,24 @@ class _MessageListScreenState extends State<MessageListScreen> {
     );
   }
 
-  // ---- MESSAGE LIST ----------------------------------------
-  Widget _buildMessageList() {
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 20),
-      itemCount: dummyMessages.length,
-      itemBuilder: (context, index) {
-        return _buildMessageItem(dummyMessages[index]);
-      },
+  Widget _buildStatusIndicator(bool isRead) {
+    return Row(
+      children: [
+        Text(
+          isRead ? 'Read' : 'Pending',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: isRead ? AppColors.success : AppColors.warning,
+          ),
+        ),
+        const SizedBox(width: 2),
+        Icon(
+          Icons.check_rounded,
+          size: 14,
+          color: isRead ? AppColors.success : AppColors.warning,
+        ),
+      ],
     );
   }
-
-  Widget _buildMessageItem(MessageModel msg) {
-    return InkWell(
-      onTap: () {
-        // Navigate to chat detail
-      },
-      splashColor: surface2Color,
-      highlightColor: surface2Color,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: borderColor, width: 1),
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Avatar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.network(
-                msg.avatarUrl,
-                width: 54,
-                height: 54,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 54,
-                  height: 54,
-                  color: surface2Color,
-                  child: Icon(Icons.person, color: iconColor),
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Name + Status row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        msg.name,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: textPrimary,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            msg.isRead ? 'Read' : 'Pending',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: msg.isRead ? readColor : pendingColor,
-                            ),
-                          ),
-                          const SizedBox(width: 3),
-                          Icon(
-                            Icons.check_rounded,
-                            size: 14,
-                            color: msg.isRead ? readColor : pendingColor,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  // Preview
-                  Text(
-                    msg.preview,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: textSecondary,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                    // Time
-                    Text(
-                      msg.time,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textMeta,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
 }
