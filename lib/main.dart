@@ -14,10 +14,8 @@ void main() async {
   await themeProvider.loadTheme();
 
   // 3. Tentukan rute awal (Langsung ke Login)
-  const String initialRoute = AppRoutes.messageList;
-
-  
-  // const String initialRoute = AppRoutes.login; // REVISI: Langsung ke Login
+  //const String initialRoute = AppRoutes.messageList;
+const String initialRoute = AppRoutes.login; // REVISI: Langsung ke Login
 
   
 

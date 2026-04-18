@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../routes/app_routes.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../theme/app_colors.dart';
 
@@ -121,7 +122,7 @@ class _MessageListScreenState extends State<MessageListScreen> {
           ),
           _iconButton(
             icon: Icons.person_outline_rounded,
-            onTap: () {},
+            onTap: () => Navigator.pushNamed(context, AppRoutes.chatDetail),
             isDark: isDark,
           ),
         ],
@@ -172,7 +173,7 @@ class _MessageListScreenState extends State<MessageListScreen> {
 
   Widget _buildMessageItem(MessageModel msg, bool isDark) {
     return InkWell(
-      onTap: () {},
+      onTap: () => Navigator.pushNamed(context, AppRoutes.chatDetail),
       child: Container(
         decoration: BoxDecoration(
           border: Border(
