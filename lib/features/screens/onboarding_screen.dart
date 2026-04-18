@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../routes/app_routes.dart';
 import '../../../theme/app_colors.dart';
+import '../../../theme/theme_provider.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -72,12 +74,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDarkMode;
     final textTheme = Theme.of(context).textTheme;
 
-    // Menggunakan AppColors dari app_colors.dart
-    const Color bgColor    = AppColors.primaryGreen;  
-    const Color accentColor = AppColors.accent;        
-    const Color onBgColor  = Colors.white;
+    // Warna adaptif berdasarkan mode
+    final bgColor = isDark ? AppColors.backgroundDark : AppColors.primaryGreen;
+    final logoBgColor = isDark ? AppColors.surfaceDark : Colors.white;
+    final logoIconColor = isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen;
+    final textColor = isDark ? AppColors.textPrimaryDark : Colors.white;
+    final subtitleColor = isDark ? AppColors.textSecondaryDark : Colors.white.withOpacity(0.85);
+    final dotActiveColor = isDark ? AppColors.primaryGreenLight : Colors.white;
+    final dotInactiveColor = isDark 
+        ? AppColors.textHintDark.withOpacity(0.6) 
+        : Colors.white.withOpacity(0.4);
+    
+    // Warna button adaptif
+    final signUpBtnColor = isDark ? AppColors.primaryGreenLight : AppColors.accent;
+    final loginBtnBgColor = isDark 
+        ? AppColors.surfaceVariantDark.withOpacity(0.8) 
+        : Colors.white.withOpacity(0.18);
+    final loginBtnTextColor = isDark ? AppColors.textPrimaryDark : Colors.white;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -86,28 +102,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             const SizedBox(height: 60),
 
-            // ── Logo ───────────────────────────────────────────────────
-            const _SayurLogo(),
+            // ── Logo (Adaptif) ─────────────────────────────────────────
+            _SayurLogo(
+              backgroundColor: logoBgColor,
+              iconColor: logoIconColor,
+            ),
 
             const SizedBox(height: 6),
 
+            // ── Title "Sayur" (Adaptif) ────────────────────────────────
             Text(
               'Sayur',
               style: TextStyle(
                 fontFamily: 'Cursive',
                 fontSize: 32,
                 fontWeight: FontWeight.w400,
-                color: onBgColor,
+                color: textColor,
                 letterSpacing: 1.5,
               ),
             ),
 
             const SizedBox(height: 4),
 
+            // ── Subtitle (Adaptif) ─────────────────────────────────────
             Text(
               'Healthy Food Delivery',
               style: textTheme.bodyMedium?.copyWith(
-                color: onBgColor.withOpacity(0.85),
+                color: subtitleColor,
                 fontSize: 13,
               ),
             ),
@@ -124,37 +145,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 itemBuilder: (context, index) {
                   return _OnboardingSlide(
                     data: _pages[index],
-                    onBgColor: onBgColor,
+                    textColor: textColor,
+                    subtitleColor: subtitleColor,
                     textTheme: textTheme,
                   );
                 },
               ),
             ),
 
-            // ── Dot Indicator ──────────────────────────────────────────
+            // ── Dot Indicator (Adaptif) ─────────────────────────────────
             _DotIndicator(
               count: _pages.length,
               current: _currentPage,
-              activeColor: onBgColor,
-              inactiveColor: onBgColor.withOpacity(0.4),
+              activeColor: dotActiveColor,
+              inactiveColor: dotInactiveColor,
               onDotTap: _goToPage,
             ),
 
             const SizedBox(height: 20),
 
-            // ── Buttons ────────────────────────────────────────────────
+            // ── Buttons (Adaptif) ──────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // Sign Up 
+                  // SIGN UP button
                   SizedBox(
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
                       onPressed: _navigateToRegister,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: accentColor,
+                        backgroundColor: signUpBtnColor,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -170,15 +192,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Login 
+                  // LOGIN button
                   SizedBox(
                     width: double.infinity,
                     height: 52,
                     child: TextButton(
                       onPressed: _navigateToLogin,
                       style: TextButton.styleFrom(
-                        backgroundColor: onBgColor.withOpacity(0.18),
-                        foregroundColor: onBgColor,
+                        backgroundColor: loginBtnBgColor,
+                        foregroundColor: loginBtnTextColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -213,9 +235,15 @@ class _OnboardingData {
   });
 }
 
-// ==================== LOGO ====================
+// ==================== LOGO (ADAPTIF) ====================
 class _SayurLogo extends StatelessWidget {
-  const _SayurLogo();
+  final Color backgroundColor;
+  final Color iconColor;
+  
+  const _SayurLogo({
+    required this.backgroundColor,
+    required this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +251,7 @@ class _SayurLogo extends StatelessWidget {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: ClipRRect(
@@ -231,11 +259,11 @@ class _SayurLogo extends StatelessWidget {
         child: Image.asset(
           'assets/wortel_logo.png',
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => const Center(
+          errorBuilder: (context, error, stackTrace) => Center(
             child: Icon(
               Icons.eco_rounded,
               size: 44,
-              color: AppColors.primaryGreen,
+              color: iconColor,
             ),
           ),
         ),
@@ -244,14 +272,17 @@ class _SayurLogo extends StatelessWidget {
   }
 }
 
-// ==================== SLIDE ====================
+// ==================== SLIDE (ADAPTIF) ====================
 class _OnboardingSlide extends StatelessWidget {
   final _OnboardingData data;
-  final Color onBgColor;
+  final Color textColor;
+  final Color subtitleColor;
   final TextTheme textTheme;
+  
   const _OnboardingSlide({
     required this.data,
-    required this.onBgColor,
+    required this.textColor,
+    required this.subtitleColor,
     required this.textTheme,
   });
 
@@ -267,7 +298,7 @@ class _OnboardingSlide extends StatelessWidget {
             data.title,
             textAlign: TextAlign.center,
             style: textTheme.headlineMedium?.copyWith(
-              color: onBgColor,
+              color: textColor,
               fontWeight: FontWeight.w700,
               height: 1.25,
             ),
@@ -277,7 +308,7 @@ class _OnboardingSlide extends StatelessWidget {
             data.description,
             textAlign: TextAlign.center,
             style: textTheme.bodyLarge?.copyWith(
-              color: onBgColor.withOpacity(0.85),
+              color: subtitleColor,
             ),
           ),
         ],
@@ -286,7 +317,7 @@ class _OnboardingSlide extends StatelessWidget {
   }
 }
 
-// ==================== DOT INDICATOR ====================
+// ==================== DOT INDICATOR (ADAPTIF) ====================
 class _DotIndicator extends StatelessWidget {
   final int count;
   final int current;
