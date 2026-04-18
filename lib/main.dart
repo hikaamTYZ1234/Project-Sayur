@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';  // ← Tambahkan ini
-import 'routes/app_routes.dart';
+// Pastikan path import di bawah ini sesuai dengan struktur folder Anda
+import 'routes/app_routes.dart'; 
 import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
 
 void main() async {
+  // 1. Inisialisasi binding Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load tema yang tersimpan sebelumnya
+  // 2. Inisialisasi ThemeProvider
   final themeProvider = ThemeProvider();
   await themeProvider.loadTheme();
 
-  // Cek apakah sudah pernah onboarding
-  final prefs = await SharedPreferences.getInstance();
-  final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-  
-  // Tentukan route awal
-  final initialRoute = hasSeenOnboarding ? AppRoutes.login : AppRoutes.onboarding;
+  // 3. Tentukan rute awal (Langsung ke Message List)
+  const String initialRoute = AppRoutes.messageList;
 
   runApp(
-    ChangeNotifierProvider.value(
-      value: themeProvider, 
-      child: MyApp(initialRoute: initialRoute),  
+    ChangeNotifierProvider<ThemeProvider>.value(
+      value: themeProvider,
+      child: const MyApp(initialRoute: initialRoute),
     ),
   );
 }
@@ -30,24 +27,26 @@ void main() async {
 class MyApp extends StatelessWidget {
   final String initialRoute;
   
-  const MyApp({super.key, required this.initialRoute});  
+  // Constructor yang benar
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
+    // 4. Mengambil data theme dari Provider
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-      // ── Theme ──────────────────────────────────────────
+      
+      // Menggunakan tema dari AppTheme
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
 
-      // ── Routes ─────────────────────────────────────────
-      initialRoute: initialRoute,  
+      // Konfigurasi Navigasi
+      initialRoute: initialRoute,
       routes: AppRoutes.routes,
-      onGenerateRoute: AppRoutes.onGenerateRoute, 
+      onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }
 }
