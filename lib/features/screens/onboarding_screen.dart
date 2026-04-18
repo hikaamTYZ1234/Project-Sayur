@@ -61,14 +61,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _navigateToRegister() async {
     await _completeOnboarding();
     if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.messages);
+      Navigator.pushReplacementNamed(context, AppRoutes.register);
     }
   }
 
   Future<void> _navigateToLogin() async {
     await _completeOnboarding();
     if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.messages);
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 
@@ -80,18 +80,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Warna adaptif berdasarkan mode
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.primaryGreen;
     final logoBgColor = isDark ? AppColors.surfaceDark : Colors.white;
-    final logoIconColor = isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen;
+    final logoIconColor = isDark
+        ? AppColors.primaryGreenLight
+        : AppColors.primaryGreen;
     final textColor = isDark ? AppColors.textPrimaryDark : Colors.white;
-    final subtitleColor = isDark ? AppColors.textSecondaryDark : Colors.white.withOpacity(0.85);
+    final subtitleColor = isDark
+        ? AppColors.textSecondaryDark
+        : Colors.white.withOpacity(0.85);
     final dotActiveColor = isDark ? AppColors.primaryGreenLight : Colors.white;
-    final dotInactiveColor = isDark 
-        ? AppColors.textHintDark.withOpacity(0.6) 
+    final dotInactiveColor = isDark
+        ? AppColors.textHintDark.withOpacity(0.6)
         : Colors.white.withOpacity(0.4);
-    
+
     // Warna button adaptif
-    final signUpBtnColor = isDark ? AppColors.primaryGreenLight : AppColors.accent;
-    final loginBtnBgColor = isDark 
-        ? AppColors.surfaceVariantDark.withOpacity(0.8) 
+    final signUpBtnColor = isDark
+        ? AppColors.primaryGreenLight
+        : AppColors.accent;
+    final loginBtnBgColor = isDark
+        ? AppColors.surfaceVariantDark.withOpacity(0.8)
         : Colors.white.withOpacity(0.18);
     final loginBtnTextColor = isDark ? AppColors.textPrimaryDark : Colors.white;
 
@@ -103,10 +109,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             const SizedBox(height: 60),
 
             // ── Logo (Adaptif) ─────────────────────────────────────────
-            _SayurLogo(
-              backgroundColor: logoBgColor,
-              iconColor: logoIconColor,
-            ),
+            _SayurLogo(backgroundColor: logoBgColor, iconColor: logoIconColor),
 
             const SizedBox(height: 6),
 
@@ -229,21 +232,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class _OnboardingData {
   final String title;
   final String description;
-  const _OnboardingData({
-    required this.title,
-    required this.description,
-  });
+  const _OnboardingData({required this.title, required this.description});
 }
 
 // ==================== LOGO (ADAPTIF) ====================
 class _SayurLogo extends StatelessWidget {
   final Color backgroundColor;
   final Color iconColor;
-  
-  const _SayurLogo({
-    required this.backgroundColor,
-    required this.iconColor,
-  });
+
+  const _SayurLogo({required this.backgroundColor, required this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -260,11 +257,7 @@ class _SayurLogo extends StatelessWidget {
           'assets/wortel_logo.png',
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Center(
-            child: Icon(
-              Icons.eco_rounded,
-              size: 44,
-              color: iconColor,
-            ),
+            child: Icon(Icons.eco_rounded, size: 44, color: iconColor),
           ),
         ),
       ),
@@ -278,7 +271,7 @@ class _OnboardingSlide extends StatelessWidget {
   final Color textColor;
   final Color subtitleColor;
   final TextTheme textTheme;
-  
+
   const _OnboardingSlide({
     required this.data,
     required this.textColor,
@@ -307,9 +300,7 @@ class _OnboardingSlide extends StatelessWidget {
           Text(
             data.description,
             textAlign: TextAlign.center,
-            style: textTheme.bodyLarge?.copyWith(
-              color: subtitleColor,
-            ),
+            style: textTheme.bodyLarge?.copyWith(color: subtitleColor),
           ),
         ],
       ),

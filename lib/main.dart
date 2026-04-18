@@ -13,8 +13,11 @@ void main() async {
   final themeProvider = ThemeProvider();
   await themeProvider.loadTheme();
 
-  // 3. Tentukan rute awal (Langsung ke Message List)
-  const String initialRoute = AppRoutes.messageList;
+  // 3. Tentukan rute awal (Langsung ke Login)
+  //const String initialRoute = AppRoutes.messageList;
+const String initialRoute = AppRoutes.login; // REVISI: Langsung ke Login
+
+  
 
   runApp(
     ChangeNotifierProvider<ThemeProvider>.value(
