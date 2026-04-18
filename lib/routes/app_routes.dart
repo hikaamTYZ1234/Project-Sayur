@@ -4,6 +4,8 @@ import '../features/auth/screens/register_screen.dart';
 import '../features/messages/screens/message_list_screen.dart';
 import '../features/messages/screens/chat_detail.dart';
 
+
+
 class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
