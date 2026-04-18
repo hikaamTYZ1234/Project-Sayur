@@ -42,16 +42,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.surfaceDark : Colors.white,
+                  // ✅ Mengikuti tema: abu-abu terang (light) / abu-abu gelap (dark)
+                  color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(20),
                   border: isDark
                       ? null
                       : Border.all(
-                          color: AppColors.dividerLight, width: 1),
+                          color: AppColors.dividerLight, 
+                          width: 1,
+                        ),
                 ),
                 child: Center(
                   child: Image.asset(
-                    'wortel_logo.png',
+                    'assets/wortel_logo.png',
                     width: 54,
                     height: 54,
                     fit: BoxFit.contain,
@@ -189,7 +192,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 14),
 
               // ── LOGIN button ──────────────────────────────────────────
-              // Tombol LOGIN dengan warna abu-abu dan tanpa border hijau
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -199,8 +201,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isDark 
-                        ? AppColors.surfaceVariantDark  // Abu-abu gelap untuk dark mode
-                        : AppColors.surfaceVariantLight, // Abu-abu terang untuk light mode
+                        ? AppColors.surfaceVariantDark  
+                        : AppColors.surfaceVariantLight, 
                     foregroundColor: isDark 
                         ? AppColors.textSecondaryDark 
                         : AppColors.textSecondaryLight,
