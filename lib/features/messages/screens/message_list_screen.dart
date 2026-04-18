@@ -181,20 +181,6 @@ class _MessageListScreenState extends State<MessageListScreen> {
               width: 1,
             ),
           ),
-<<<<<<< HEAD
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () => setState(() => _isDarkMode = !_isDarkMode),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 46,
-              height: 26,
-              decoration: BoxDecoration(
-                color: _isDarkMode
-                    ? const Color(0xFF333333)
-                    : const Color(0xFFCCCCCC),
-                borderRadius: BorderRadius.circular(99),
-=======
         ),
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
         child: Row(
@@ -219,7 +205,6 @@ class _MessageListScreenState extends State<MessageListScreen> {
                     ),
                   ),
                 ),
->>>>>>> fitur/message-list
               ),
             ),
             const SizedBox(width: 14),
