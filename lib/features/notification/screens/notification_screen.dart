@@ -140,7 +140,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
           GestureDetector(
             onTap: () {
               if (Navigator.canPop(context)) {
-                Navigator.pop(context);
+                Navigator.maybePop(context);
+              } else {
+                Navigator.pushReplacementNamed(context, '/home');
               }
             },
             child: Icon(Icons.arrow_back, color: textPrimary, size: 26),

@@ -113,7 +113,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.maybePop(context),
         ),
         title: const Text('Details'),
         actions: [

@@ -74,6 +74,17 @@ class MessageListScreen extends StatefulWidget {
 
 class _MessageListScreenState extends State<MessageListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -109,7 +120,13 @@ class _MessageListScreenState extends State<MessageListScreen> {
         children: [
           _iconButton(
             icon: Icons.arrow_back_ios_new_rounded,
-            onTap: () => Navigator.maybePop(context),
+            onTap: () {
+              if (Navigator.canPop(context)) {
+                Navigator.maybePop(context);
+              } else {
+                Navigator.pushReplacementNamed(context, AppRoutes.home);
+              }
+            },
             isDark: isDark,
           ),
           Text(

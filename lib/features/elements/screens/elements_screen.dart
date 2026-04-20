@@ -246,7 +246,9 @@ class _ElementsScreenState extends State<ElementsScreen> {
           GestureDetector(
             onTap: () {
               if (Navigator.canPop(context)) {
-                Navigator.pop(context);
+                Navigator.maybePop(context);
+              } else {
+                Navigator.pushReplacementNamed(context, '/home');
               }
             },
             child: Icon(Icons.arrow_back, color: textPrimary, size: 26),

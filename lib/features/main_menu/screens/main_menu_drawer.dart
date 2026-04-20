@@ -67,18 +67,24 @@ class _MainMenuDrawerState extends State<MainMenuDrawer> {
       return;
     }
 
-    // Setting — buka Color Themes
-    if (_menuItems[index].label == 'Setting') {
-      Navigator.of(context).pop(); // tutup drawer dulu
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const ColorThemesScreen()),
-      );
-      return;
-    }
+    Navigator.of(context).pop(); // tutup drawer dulu
 
-    setState(() => _activeIndex = index);
-    widget.onItemTap?.call(index);
-    Navigator.of(context).pop(); // tutup drawer
+    final label = _menuItems[index].label;
+    if (label == 'Setting') {
+      Navigator.of(context).pushNamed('/color-themes');
+    } else if (label == 'Home') {
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    } else if (label == 'My Order') {
+      Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+    } else if (label == 'Notifications') {
+      Navigator.pushNamedAndRemoveUntil(context, '/notification', (route) => false);
+    } else if (label == 'Profile') {
+      Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+    } else if (label == 'Message') {
+      Navigator.pushNamedAndRemoveUntil(context, '/message-list', (route) => false);
+    } else if (label == 'Elements') {
+      Navigator.pushNamedAndRemoveUntil(context, '/elements', (route) => false);
+    }
   }
 
   void _showLogoutDialog() {
@@ -118,8 +124,7 @@ class _MainMenuDrawerState extends State<MainMenuDrawer> {
             ),
             onPressed: () {
               Navigator.pop(context); // tutup dialog
-              Navigator.pop(context); // tutup drawer
-              // TODO: aksi logout
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
             },
             child: const Text('Keluar'),
           ),
