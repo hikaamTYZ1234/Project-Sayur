@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: handle login
+                    Navigator.pushReplacementNamed(context, '/home');
                   },
                   child: const Text('LOGIN'),
                 ),
@@ -278,12 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, '/register');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,

@@ -173,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: handle register
+                    Navigator.pushReplacementNamed(context, '/home');
                   },
                   child: const Text('SIGN UP'), 
                 ),

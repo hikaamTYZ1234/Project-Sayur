@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '/../../theme/app_colors.dart';
 import 'detail_location_screen.dart';
-import '../../main_menu/screens/main_menu_drawer.dart'; 
-
+import '../../main_menu/screens/main_menu_drawer.dart';
 // ─────────────────────────────────────────────────────────────────
 //  MODEL
 // ─────────────────────────────────────────────────────────────────
@@ -161,32 +160,42 @@ class _OrdersScreenState extends State<OrdersScreen> {
         : AppColors.textPrimaryLight;
 
     return Scaffold(
-      // ── Drawer terhubung ke MainMenuDrawer ───────────────────
-      drawer: const MainMenuDrawer(activeIndex: 1), // 1 = My Order
+      drawer: const MainMenuDrawer(activeIndex: 1),
 
       // ── AppBar ───────────────────────────────────────────────
       appBar: AppBar(
         automaticallyImplyLeading: false,
         // ── Kiri: Hamburger menu ─────────────────────────────
         leading: Builder(
-          builder: (context) => GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildHamburgerLine(24, textColor),
-                  const SizedBox(height: 5),
-                  _buildHamburgerLine(18, textColor),
-                  const SizedBox(height: 5),
-                  _buildHamburgerLine(24, textColor),
-                ],
+          builder: (context) {
+            final canPop = Navigator.canPop(context);
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                if (canPop) {
+                  Navigator.pop(context);
+                } else {
+                  Scaffold.of(context).openDrawer();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: canPop
+                    ? Icon(Icons.arrow_back, color: textColor)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildHamburgerLine(24, textColor),
+                          const SizedBox(height: 5),
+                          _buildHamburgerLine(18, textColor),
+                          const SizedBox(height: 5),
+                          _buildHamburgerLine(24, textColor),
+                        ],
+                      ),
               ),
-            ),
-          ),
+            );
+          },
         ),
 
         // ── Tengah: Judul halaman ────────────────────────────
