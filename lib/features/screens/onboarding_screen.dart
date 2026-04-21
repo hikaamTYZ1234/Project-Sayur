@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../routes/app_routes.dart';
+import '../../routes/app_routes.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/theme_provider.dart';
 

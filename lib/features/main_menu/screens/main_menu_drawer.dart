@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../theme/app_colors.dart';
 import 'color_themes_screen.dart';
+import '../../../routes/app_routes.dart';
+import '../../screens/onboarding_screen.dart';
+
 
 // ─────────────────────────────────────────────────────────────────
 //  MODEL MENU ITEM
@@ -21,24 +25,21 @@ class _MenuItem {
 //  DATA MENU
 // ─────────────────────────────────────────────────────────────────
 const List<_MenuItem> _menuItems = [
-  _MenuItem(icon: Icons.home_outlined,         label: 'Home'),
+  _MenuItem(icon: Icons.home_outlined, label: 'Home'),
   _MenuItem(icon: Icons.shopping_cart_outlined, label: 'My Order'),
   _MenuItem(icon: Icons.notifications_outlined, label: 'Notifications', badge: 2),
-  _MenuItem(icon: Icons.person_outline,         label: 'Profile'),
-  _MenuItem(icon: Icons.mail_outline,           label: 'Message'),
-  _MenuItem(icon: Icons.grid_view_outlined,     label: 'Elements'),
-  _MenuItem(icon: Icons.settings_outlined,      label: 'Setting'),
-  _MenuItem(icon: Icons.power_settings_new,     label: 'Logout'),
+  _MenuItem(icon: Icons.person_outline, label: 'Profile'),
+  _MenuItem(icon: Icons.mail_outline, label: 'Message'),
+  _MenuItem(icon: Icons.grid_view_outlined, label: 'Elements'),
+  _MenuItem(icon: Icons.settings_outlined, label: 'Setting'),
+  _MenuItem(icon: Icons.power_settings_new, label: 'Logout'),
 ];
 
 // ─────────────────────────────────────────────────────────────────
 //  MAIN MENU DRAWER
 // ─────────────────────────────────────────────────────────────────
 class MainMenuDrawer extends StatefulWidget {
-  /// Index halaman yang sedang aktif (0 = Home, 1 = My Order, dst.)
   final int activeIndex;
-
-  /// Callback saat item menu ditekan
   final ValueChanged<int>? onItemTap;
 
   const MainMenuDrawer({
@@ -61,34 +62,35 @@ class _MainMenuDrawerState extends State<MainMenuDrawer> {
   }
 
   void _onTap(int index) {
-    // Logout — tampilkan dialog konfirmasi
     if (_menuItems[index].label == 'Logout') {
       _showLogoutDialog();
       return;
     }
 
-    Navigator.of(context).pop(); // tutup drawer dulu
+    Navigator.of(context).pop();
 
     final label = _menuItems[index].label;
+
     if (label == 'Setting') {
-      Navigator.of(context).pushNamed('/color-themes');
+      Navigator.of(context).pushNamed(AppRoutes.colorThemes);
     } else if (label == 'Home') {
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (route) => false);
     } else if (label == 'My Order') {
-      Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.orders, (route) => false);
     } else if (label == 'Notifications') {
-      Navigator.pushNamedAndRemoveUntil(context, '/notification', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.notification, (route) => false);
     } else if (label == 'Profile') {
-      Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.profile, (route) => false);
     } else if (label == 'Message') {
-      Navigator.pushNamedAndRemoveUntil(context, '/message-list', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.messageList, (route) => false);
     } else if (label == 'Elements') {
-      Navigator.pushNamedAndRemoveUntil(context, '/elements', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.elements, (route) => false);
     }
   }
 
   void _showLogoutDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -117,14 +119,26 @@ class _MainMenuDrawerState extends State<MainMenuDrawer> {
               ),
             ),
           ),
+
+          // 🔥 FIX LOGOUT DI SINI
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(80, 38),
               backgroundColor: AppColors.primaryGreen,
             ),
-            onPressed: () {
-              Navigator.pop(context); // tutup dialog
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+            onPressed: () async {
+              Navigator.pop(context);
+
+              // 🔥 reset onboarding
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('hasSeenOnboarding');
+
+              // 🔥 arahkan ke onboarding
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.onboarding,
+                (route) => false,
+              );
             },
             child: const Text('Keluar'),
           ),
@@ -142,61 +156,13 @@ class _MainMenuDrawerState extends State<MainMenuDrawer> {
       backgroundColor: isDark ? AppColors.surfaceDark : AppColors.backgroundLight,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topRight:    Radius.circular(24),
+          topRight: Radius.circular(24),
           bottomRight: Radius.circular(24),
         ),
       ),
       child: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header: Tombol Close + Judul ──────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Main Menu',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimaryLight,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isDark
-                              ? AppColors.dividerDark
-                              : AppColors.dividerLight,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 18,
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimaryLight,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // ── Menu Items ────────────────────────────────────
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -204,141 +170,17 @@ class _MainMenuDrawerState extends State<MainMenuDrawer> {
                 itemBuilder: (context, index) {
                   final item = _menuItems[index];
                   final isActive = index == _activeIndex;
-                  final isLogout = item.label == 'Logout';
 
-                  return _MenuTile(
-                    item: item,
-                    isActive: isActive,
-                    isLogout: isLogout,
-                    isDark: isDark,
+                  return ListTile(
+                    leading: Icon(item.icon),
+                    title: Text(item.label),
+                    selected: isActive,
                     onTap: () => _onTap(index),
                   );
                 },
               ),
             ),
-
-            // ── Footer: Nama App & Versi ───────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Divider(
-                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
-                    height: 24,
-                  ),
-                  Text(
-                    'Sayur Healthy Food',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'App Version 1.0.1',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────
-//  WIDGET: Menu Tile
-// ─────────────────────────────────────────────────────────────────
-class _MenuTile extends StatelessWidget {
-  final _MenuItem item;
-  final bool isActive;
-  final bool isLogout;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _MenuTile({
-    required this.item,
-    required this.isActive,
-    required this.isLogout,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final activeColor  = isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen;
-    final inactiveColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-    final iconColor    = isActive ? activeColor : inactiveColor;
-    final textColor    = isActive
-        ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-        : inactiveColor;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? (isDark ? AppColors.primaryBgDark : AppColors.primaryBg)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                // Icon
-                Icon(item.icon, size: 22, color: iconColor),
-                const SizedBox(width: 14),
-
-                // Label
-                Expanded(
-                  child: Text(
-                    item.label,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                      color: textColor,
-                    ),
-                  ),
-                ),
-
-                // Badge notifikasi
-                if (item.badge != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryGreen,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${item.badge}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
         ),
       ),
     );

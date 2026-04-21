@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/app_colors.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -8,7 +9,6 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final Color primaryGreen = const Color(0xFF2E8B57);
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool _isListView = true;
@@ -20,7 +20,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&q=80&w=400',
+      'image':
+          'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&q=80&w=400',
     },
     {
       'title': 'Slices of Avocados at Original Bread',
@@ -28,7 +29,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=400',
+      'image':
+          'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=400',
     },
     {
       'title': 'Green Avocados with Oats Bread',
@@ -36,7 +38,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?auto=format&fit=crop&q=80&w=400',
+      'image':
+          'https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?auto=format&fit=crop&q=80&w=400',
     },
     {
       'title': 'Basil Leaves and Avocado on Sliced B..',
@@ -44,7 +47,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400',
+      'image':
+          'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400',
     },
   ];
 
@@ -73,29 +77,35 @@ class _SearchScreenState extends State<SearchScreen> {
     }).toList();
   }
 
+  // ─── Helper: ambil warna dari tema aktif ──────────────────────
+  Color _primaryColor(BuildContext context) {
+    return Theme.of(context).colorScheme.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // Scaffold background otomatis ikut theme (light/dark)
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.maybePop(context),
         ),
-        title: const Text(
+        title: Text(
           'Search',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+          style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.swap_vert, color: Colors.black87, size: 28),
+            icon: Icon(
+              Icons.swap_vert,
+              color: Theme.of(context).colorScheme.onSurface,
+              size: 28,
+            ),
             onPressed: () {},
           ),
           const SizedBox(width: 8),
@@ -104,41 +114,66 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         children: [
           const SizedBox(height: 10),
-          _buildSearchBar(),
+          _buildSearchBar(context),
           const SizedBox(height: 24),
-          _buildFilterRow(),
+          _buildFilterRow(context),
           const SizedBox(height: 16),
-          Expanded(
-            child: _buildSearchResults(),
-          ),
+          Expanded(child: _buildSearchResults(context)),
         ],
       ),
     );
   }
 
-  Widget _buildSearchBar() {
+  // ─── Search Bar ───────────────────────────────────────────────
+  Widget _buildSearchBar(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF6F6F6),
+          // Gunakan surfaceVariant dari AppColors sesuai mode
+          color: isDark
+              ? AppColors.surfaceVariantDark
+              : AppColors.surfaceVariantLight,
           borderRadius: BorderRadius.circular(16),
         ),
         child: TextField(
           controller: _searchController,
-          decoration: const InputDecoration(
+          style: TextStyle(
+            color: isDark
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
+          ),
+          decoration: InputDecoration(
             hintText: 'Find food here...',
-            hintStyle: TextStyle(color: Colors.grey, fontSize: 15),
-            prefixIcon: Icon(Icons.search, color: Colors.grey, size: 24),
+            hintStyle: TextStyle(
+              color:
+                  isDark ? AppColors.textHintDark : AppColors.textHintLight,
+              fontSize: 15,
+            ),
+            prefixIcon: Icon(
+              Icons.search,
+              color:
+                  isDark ? AppColors.textHintDark : AppColors.textHintLight,
+              size: 24,
+            ),
+            // Tidak ada border (ikut inputDecorationTheme)
             border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildFilterRow() {
+  // ─── Filter Row (jumlah hasil + toggle view) ──────────────────
+  Widget _buildFilterRow(BuildContext context) {
+    final primaryColor = _primaryColor(context);
+    final inactiveColor = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.iconInactiveDark
+        : AppColors.iconInactiveLight;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
@@ -146,241 +181,244 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Text(
             '${_filteredResults.length} Food found',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           Row(
             children: [
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isListView = true;
-                  });
-                },
+                onTap: () => setState(() => _isListView = true),
                 child: Icon(
                   Icons.menu,
-                  color: _isListView ? primaryGreen : Colors.grey.shade400,
+                  color: _isListView ? primaryColor : inactiveColor,
                   size: 28,
                 ),
               ),
               const SizedBox(width: 12),
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isListView = false;
-                  });
-                },
+                onTap: () => setState(() => _isListView = false),
                 child: Icon(
                   Icons.grid_view,
-                  color: !_isListView ? primaryGreen : Colors.grey.shade400,
+                  color: !_isListView ? primaryColor : inactiveColor,
                   size: 24,
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSearchResults() {
+  // ─── Hasil Pencarian ──────────────────────────────────────────
+  Widget _buildSearchResults(BuildContext context) {
     final results = _filteredResults;
 
     if (results.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No food found',
-          style: TextStyle(color: Colors.grey, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       );
     }
 
-    if (!_isListView) {
-      return GridView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.75, // Adjusts height vs width of cards
-        ),
-        itemCount: results.length,
-        itemBuilder: (context, index) {
-          final item = results[index];
-          return InkWell(
-            onTap: () {
-              Navigator.pushNamed(context, '/food-detail', arguments: item);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.05),
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Food Image
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                        image: DecorationImage(
-                          image: NetworkImage(item['image']),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Food Details
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['title'],
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                            height: 1.2,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              item['price'],
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: primaryGreen,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                const Icon(Icons.star, color: Color(0xFFFF7E00), size: 14),
-                                const SizedBox(width: 4),
-                                Text(
-                                  item['rating'],
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
+    return _isListView
+        ? _buildListView(context, results)
+        : _buildGridView(context, results);
+  }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+  // ─── Grid View ────────────────────────────────────────────────
+  Widget _buildGridView(
+      BuildContext context, List<Map<String, dynamic>> results) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor =
+        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final borderColor =
+        isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    final primaryColor = _primaryColor(context);
+
+    return GridView.builder(
+      padding:
+          const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.75,
+      ),
       itemCount: results.length,
       itemBuilder: (context, index) {
         final item = results[index];
         return InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, '/food-detail', arguments: item);
-          },
+          borderRadius: BorderRadius.circular(16),
+          onTap: () =>
+              Navigator.pushNamed(context, '/food-detail', arguments: item),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor),
+              color: cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16)),
+                    child: Image.network(
+                      item['image'],
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title'],
+                        style: Theme.of(context).textTheme.titleSmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            item['price'],
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(color: primaryColor),
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.star,
+                                  color: AppColors.accent, size: 14),
+                              const SizedBox(width: 4),
+                              Text(
+                                item['rating'],
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ─── List View ────────────────────────────────────────────────
+  Widget _buildListView(
+      BuildContext context, List<Map<String, dynamic>> results) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = _primaryColor(context);
+
+    return ListView.builder(
+      padding:
+          const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final item = results[index];
+        return InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () =>
+              Navigator.pushNamed(context, '/food-detail', arguments: item),
           child: Container(
             margin: const EdgeInsets.only(bottom: 20),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Food Image
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    image: DecorationImage(
-                      image: NetworkImage(item['image']),
-                      fit: BoxFit.cover,
-                    ),
+                // Gambar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    item['image'],
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Food Details
+                // Detail
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         item['title'],
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                          height: 1.2,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),
                       Text(
                         item['ingredients'],
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade500,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 12),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          // Harga diskon
                           Text(
                             item['price'],
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: primaryGreen,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                           ),
                           const SizedBox(width: 8),
+                          // Harga asli (coret)
                           Text(
                             item['originalPrice'],
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey.shade400,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
                               decoration: TextDecoration.lineThrough,
                             ),
                           ),
                           const Spacer(),
+                          // Badge rating
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF7E00), // Orange color for rating
+                              color: AppColors.accent,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.star, color: Colors.white, size: 14),
+                                const Icon(Icons.star,
+                                    color: Colors.white, size: 14),
                                 const SizedBox(width: 4),
                                 Text(
                                   item['rating'],

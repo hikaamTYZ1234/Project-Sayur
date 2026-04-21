@@ -10,8 +10,8 @@ void main() async {
   final themeProvider = ThemeProvider();
   await themeProvider.loadTheme();
 
-  // 🔥 MULAI DARI LOGIN
-  const String initialRoute = AppRoutes.login;
+  // 🔥 START DARI ONBOARDING
+  const String initialRoute = AppRoutes.onboarding;
 
   runApp(
     ChangeNotifierProvider<ThemeProvider>.value(
@@ -32,11 +32,9 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-
       initialRoute: initialRoute,
       routes: AppRoutes.routes,
       onGenerateRoute: AppRoutes.onGenerateRoute,
