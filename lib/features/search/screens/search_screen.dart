@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
+import '../../home/screens/home_screen.dart'; // Pastikan ini sesuai dengan struktur folder kamu
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -21,7 +22,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80',
+      'image':
+          'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80',
     },
     {
       'title': 'Slices of Avocados at Original Bread',
@@ -29,7 +31,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80',
+      'image':
+          'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80',
     },
     {
       'title': 'Green Avocados with Oats Bread',
@@ -37,7 +40,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80',
+      'image':
+          'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80',
     },
     {
       'title': 'Basil Leaves and Avocado on Sliced Bread',
@@ -45,7 +49,8 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': '\$5.8',
       'originalPrice': '\$9.9',
       'rating': '3.6',
-      'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80',
+      'image':
+          'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80',
     },
   ];
 
@@ -68,7 +73,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Map<String, dynamic>> get _filteredResults {
     if (_searchQuery.isEmpty) return _allResults;
     return _allResults.where((item) {
-      final title       = item['title'].toString().toLowerCase();
+      final title = item['title'].toString().toLowerCase();
       final ingredients = item['ingredients'].toString().toLowerCase();
       return title.contains(_searchQuery) || ingredients.contains(_searchQuery);
     }).toList();
@@ -80,12 +85,16 @@ class _SearchScreenState extends State<SearchScreen> {
   // ── Fallback widget kalau gambar gagal load ───────────────────
   Widget _imageFallback(bool isDark) {
     return Container(
-      color: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,
+      color: isDark
+          ? AppColors.surfaceVariantDark
+          : AppColors.surfaceVariantLight,
       child: Center(
         child: Icon(
           Icons.fastfood_outlined,
           size: 40,
-          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          color: isDark
+              ? AppColors.textSecondaryDark
+              : AppColors.textSecondaryLight,
         ),
       ),
     );
@@ -96,9 +105,11 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Theme.of(context).colorScheme.onSurface),
-          onPressed: () => Navigator.maybePop(context),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
         ),
         title: Text(
           'Search',
@@ -107,8 +118,11 @@ class _SearchScreenState extends State<SearchScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.swap_vert,
-                color: Theme.of(context).colorScheme.onSurface, size: 28),
+            icon: Icon(
+              Icons.swap_vert,
+              color: Theme.of(context).colorScheme.onSurface,
+              size: 28,
+            ),
             onPressed: () {},
           ),
           const SizedBox(width: 8),
@@ -143,7 +157,9 @@ class _SearchScreenState extends State<SearchScreen> {
         child: TextField(
           controller: _searchController,
           style: TextStyle(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: isDark
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
           ),
           decoration: InputDecoration(
             hintText: 'Find food here...',
@@ -158,11 +174,13 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             suffixIcon: _searchQuery.isNotEmpty
                 ? IconButton(
-                    icon: Icon(Icons.close,
-                        size: 18,
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight),
+                    icon: Icon(
+                      Icons.close,
+                      size: 18,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                    ),
                     onPressed: () => _searchController.clear(),
                   )
                 : null,
@@ -176,10 +194,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // ─── Filter Row ───────────────────────────────────────────────
   Widget _buildFilterRow(BuildContext context) {
-    final isDark      = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = _primaryColor(context);
-    final inactiveColor =
-        isDark ? AppColors.iconInactiveDark : AppColors.iconInactiveLight;
+    final inactiveColor = isDark
+        ? AppColors.iconInactiveDark
+        : AppColors.iconInactiveLight;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -194,16 +213,20 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               GestureDetector(
                 onTap: () => setState(() => _isListView = true),
-                child: Icon(Icons.menu,
-                    color: _isListView ? primaryColor : inactiveColor,
-                    size: 28),
+                child: Icon(
+                  Icons.menu,
+                  color: _isListView ? primaryColor : inactiveColor,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 12),
               GestureDetector(
                 onTap: () => setState(() => _isListView = false),
-                child: Icon(Icons.grid_view,
-                    color: !_isListView ? primaryColor : inactiveColor,
-                    size: 24),
+                child: Icon(
+                  Icons.grid_view,
+                  color: !_isListView ? primaryColor : inactiveColor,
+                  size: 24,
+                ),
               ),
             ],
           ),
@@ -220,14 +243,18 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off_rounded,
-                size: 64,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight),
+            Icon(
+              Icons.search_off_rounded,
+              size: 64,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+            ),
             const SizedBox(height: 16),
-            Text('No food found',
-                style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              'No food found',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ],
         ),
       );
@@ -239,8 +266,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // ─── List View ────────────────────────────────────────────────
   Widget _buildListView(
-      BuildContext context, List<Map<String, dynamic>> results) {
-    final isDark       = Theme.of(context).brightness == Brightness.dark;
+    BuildContext context,
+    List<Map<String, dynamic>> results,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = _primaryColor(context);
 
     return ListView.builder(
@@ -261,13 +290,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: SizedBox(
-                    width:  100,
+                    width: 100,
                     height: 100,
                     child: Image.network(
                       item['image'],
-                      width:  100,
+                      width: 100,
                       height: 100,
-                      fit:    BoxFit.cover,
+                      fit: BoxFit.cover,
                       // ✅ Fallback kalau gambar gagal load
                       errorBuilder: (_, __, ___) => _imageFallback(isDark),
                       loadingBuilder: (_, child, progress) {
@@ -316,13 +345,11 @@ class _SearchScreenState extends State<SearchScreen> {
                           // Harga diskon
                           Text(
                             item['price'],
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(
-                                  color:      primaryColor,
+                                  color: primaryColor,
                                   fontWeight: FontWeight.bold,
-                                  fontSize:   18,
+                                  fontSize: 18,
                                 ),
                           ),
                           const SizedBox(width: 8),
@@ -330,7 +357,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           Text(
                             item['originalPrice'],
                             style: TextStyle(
-                              fontSize:   14,
+                              fontSize: 14,
                               color: isDark
                                   ? AppColors.textSecondaryDark
                                   : AppColors.textSecondaryLight,
@@ -341,7 +368,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           // Badge rating
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.accent,
                               borderRadius: BorderRadius.circular(20),
@@ -349,15 +378,18 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.star,
-                                    color: Colors.white, size: 14),
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   item['rating'],
                                   style: const TextStyle(
-                                    color:      Colors.white,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize:   13,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],
@@ -378,18 +410,20 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // ─── Grid View ────────────────────────────────────────────────
   Widget _buildGridView(
-      BuildContext context, List<Map<String, dynamic>> results) {
-    final isDark       = Theme.of(context).brightness == Brightness.dark;
-    final cardColor    = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
-    final borderColor  = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    BuildContext context,
+    List<Map<String, dynamic>> results,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final borderColor = isDark ? AppColors.dividerDark : AppColors.dividerLight;
     final primaryColor = _primaryColor(context);
 
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount:   2,
+        crossAxisCount: 2,
         crossAxisSpacing: 16,
-        mainAxisSpacing:  16,
+        mainAxisSpacing: 16,
         childAspectRatio: 0.75,
       ),
       itemCount: results.length,
@@ -402,14 +436,14 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border:       Border.all(color: borderColor),
-              color:        cardColor,
+              border: Border.all(color: borderColor),
+              color: cardColor,
               boxShadow: [
                 BoxShadow(
-                  color:       Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
                   spreadRadius: 1,
-                  blurRadius:  4,
-                  offset:      const Offset(0, 2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -420,10 +454,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 Expanded(
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16)),
+                      top: Radius.circular(16),
+                    ),
                     child: Image.network(
                       item['image'],
-                      fit:   BoxFit.cover,
+                      fit: BoxFit.cover,
                       width: double.infinity,
                       // ✅ Fallback
                       errorBuilder: (_, __, ___) => _imageFallback(isDark),
@@ -464,20 +499,21 @@ class _SearchScreenState extends State<SearchScreen> {
                         children: [
                           Text(
                             item['price'],
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(color: primaryColor),
                           ),
                           Row(
                             children: [
-                              const Icon(Icons.star,
-                                  color: AppColors.accent, size: 14),
+                              const Icon(
+                                Icons.star,
+                                color: AppColors.accent,
+                                size: 14,
+                              ),
                               const SizedBox(width: 4),
-                              Text(item['rating'],
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge),
+                              Text(
+                                item['rating'],
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
                             ],
                           ),
                         ],
