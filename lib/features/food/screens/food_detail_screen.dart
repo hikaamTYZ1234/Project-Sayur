@@ -1,169 +1,216 @@
 import 'package:flutter/material.dart';
+import '../../../theme/app_colors.dart'; 
 
 class FoodDetailScreen extends StatelessWidget {
   const FoodDetailScreen({super.key});
 
-  final Color primaryGreen = const Color(0xFF2E8B57);
-
   @override
   Widget build(BuildContext context) {
-    // Ambil data item yang dikirim dari halaman sebelumnya
-    final Map<String, dynamic>? item = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Fallback data jika tidak ada argument
-    final String image = item?['image'] ?? 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&q=80&w=600';
-    final String title = item?['title'] ?? 'Avocado Blend With Topping Egg';
+    // ── Ambil data dari argument ────────────────────────────────
+    final Map<String, dynamic>? item =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    final String image      = item?['image']       ?? 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&q=80&w=600';
+    final String title      = item?['title']       ?? 'Avocado Blend With Topping Egg';
     final String ingredients = item?['ingredients'] ?? 'Bread, Avocado, Leaf';
-    final String price = item?['price'] ?? '\$5.7';
-    // const rating = '4.5';
-    // const reviews = '(128 reviews)';
+    final String price      = item?['price']       ?? '\$5.7';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      // ── Background ikut theme ──────────────────────────────────
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+
       body: Stack(
         children: [
-          // 1. Image Background
+          // ── 1. Gambar Background ─────────────────────────────
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+            top: 0, left: 0, right: 0,
             height: MediaQuery.of(context).size.height * 0.45,
             child: Image.network(
               image,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                color: isDark
+                    ? AppColors.surfaceVariantDark
+                    : AppColors.surfaceVariantLight,
+                child: Icon(
+                  Icons.fastfood_outlined,
+                  size: 80,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              ),
             ),
           ),
-          
-          // 2. Gradient overlay agar teks appbar terbaca
+
+          // ── 2. Gradient overlay AppBar ───────────────────────
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+            top: 0, left: 0, right: 0,
             height: 120,
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  end:   Alignment.bottomCenter,
                   colors: [Colors.black54, Colors.transparent],
                 ),
               ),
             ),
           ),
 
-          // 3. White Container (Content)
+          // ── 3. White/Dark Container (Konten) ─────────────────
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.40,
-            left: 0,
-            right: 0,
+            top:    MediaQuery.of(context).size.height * 0.40,
+            left:   0,
+            right:  0,
             bottom: 0,
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              decoration: BoxDecoration(
+                // ✅ Warna container ikut theme
+                color: isDark
+                    ? AppColors.backgroundDark
+                    : AppColors.backgroundLight,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(32),
+                ),
               ),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(top: 40, left: 24, right: 24, bottom: 40),
+                padding: const EdgeInsets.only(
+                  top: 40, left: 24, right: 24, bottom: 40,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
+                    // ── Judul ──────────────────────────────────
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                        height: 1.2,
+                        height:   1.2,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Subtitle / Ingredients
+
+                    // ── Bahan / Ingredients ────────────────────
                     Text(
                       ingredients,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 15,
-                        color: Colors.grey.shade500,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Rating & Price
+
+                    // ── Rating & Harga ─────────────────────────
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Bintang
                             Row(
-                              children: [
-                                const Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
-                                const Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
-                                const Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
-                                const Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
-                                const Icon(Icons.star_half, color: Color(0xFFFF8C00), size: 20),
+                              children: const [
+                                Icon(Icons.star,      color: Color(0xFFFF8C00), size: 20),
+                                Icon(Icons.star,      color: Color(0xFFFF8C00), size: 20),
+                                Icon(Icons.star,      color: Color(0xFFFF8C00), size: 20),
+                                Icon(Icons.star,      color: Color(0xFFFF8C00), size: 20),
+                                Icon(Icons.star_half, color: Color(0xFFFF8C00), size: 20),
                               ],
                             ),
                             const SizedBox(height: 6),
                             Row(
                               children: [
-                                const Text(
+                                Text(
                                   '4.5',
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   '(128 reviews)',
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontSize: 14,
-                                    color: Colors.grey.shade500,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
                                   ),
                                 ),
                               ],
                             ),
                           ],
                         ),
+
+                        // Harga — pakai priceGreen sesuai desain
                         Text(
                           price,
                           style: TextStyle(
-                            fontSize: 28,
+                            fontSize:   28,
                             fontWeight: FontWeight.bold,
-                            color: primaryGreen,
+                            color:      AppColors.priceGreen,
                           ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 24),
-                    Divider(color: Colors.grey.shade200, thickness: 1.5),
+                    Divider(
+                      color: isDark
+                          ? AppColors.dividerDark
+                          : AppColors.dividerLight,
+                      thickness: 1.5,
+                    ),
                     const SizedBox(height: 24),
-                    // Nutrition Info
+
+                    // ── Info Nutrisi ───────────────────────────
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildNutritionInfo(Icons.whatshot, '160 g', 'Protein'),
-                        _buildNutritionInfo(Icons.opacity, '45 g', 'Carbs'), // Atau ikon lain yang mirip
-                        _buildNutritionInfo(Icons.bolt, 'A+', 'Vitamin'),
+                        _NutritionInfo(
+                          icon:  Icons.whatshot,
+                          value: '160 g',
+                          unit:  'Protein',
+                          isDark: isDark,
+                        ),
+                        _NutritionInfo(
+                          icon:  Icons.opacity,
+                          value: '45 g',
+                          unit:  'Carbs',
+                          isDark: isDark,
+                        ),
+                        _NutritionInfo(
+                          icon:  Icons.bolt,
+                          value: 'A+',
+                          unit:  'Vitamin',
+                          isDark: isDark,
+                        ),
                       ],
                     ),
+
                     const SizedBox(height: 32),
-                    // Description
-                    const Text(
+
+                    // ── Deskripsi ──────────────────────────────
+                    Text(
                       'Description',
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                      style: TextStyle(
+                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
-                        height: 1.6,
+                        height:   1.6,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -172,46 +219,60 @@ class FoodDetailScreen extends StatelessWidget {
             ),
           ),
 
-          // 4. Cart Floating Button
+          // ── 4. Tombol Cart (Floating) ────────────────────────
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.40 - 30,
+            top:   MediaQuery.of(context).size.height * 0.40 - 30,
             right: 32,
             child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, '/orders');
-              },
+              onTap: () => Navigator.pushNamed(context, '/orders'),
               child: Container(
-                width: 60,
+                width:  60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: primaryGreen,
+                  // ✅ Warna tombol ikut theme (hijau di light, hijau muda di dark)
+                  color: isDark
+                      ? AppColors.primaryGreenLight
+                      : AppColors.primaryGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: primaryGreen.withOpacity(0.4),
+                      color: (isDark
+                              ? AppColors.primaryGreenLight
+                              : AppColors.primaryGreen)
+                          .withOpacity(0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
                   ],
                 ),
-                child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 28),
+                child: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: Colors.white,
+                  size:  28,
+                ),
               ),
             ),
           ),
 
-          // 5. Custom App Bar Overlays
+          // ── 5. Custom AppBar Overlay ─────────────────────────
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+            top: 0, left: 0, right: 0,
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical:   8.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Tombol Back
                     IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size:  28,
+                      ),
                       onPressed: () {
                         if (Navigator.canPop(context)) {
                           Navigator.pop(context);
@@ -220,18 +281,26 @@ class FoodDetailScreen extends StatelessWidget {
                         }
                       },
                     ),
+
+                    // Judul AppBar
                     const Text(
                       'Details',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
+                        color:      Colors.white,
+                        fontSize:   20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
+                    // Tombol Bookmark
                     IconButton(
-                      icon: const Icon(Icons.bookmark_border, color: Colors.white, size: 28),
+                      icon: const Icon(
+                        Icons.bookmark_border,
+                        color: Colors.white,
+                        size:  28,
+                      ),
                       onPressed: () {
-                        // Bookmark action
+                        // TODO: bookmark
                       },
                     ),
                   ],
@@ -243,28 +312,46 @@ class FoodDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildNutritionInfo(IconData icon, String value, String unit) {
+// ─────────────────────────────────────────────────────────────────
+//  WIDGET: Nutrition Info
+// ─────────────────────────────────────────────────────────────────
+class _NutritionInfo extends StatelessWidget {
+  final IconData icon;
+  final String   value;
+  final String   unit;
+  final bool     isDark;
+
+  const _NutritionInfo({
+    required this.icon,
+    required this.value,
+    required this.unit,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFFFF7E00), size: 28), // Ikon dan warna oranye
+        Icon(icon, color: AppColors.accent, size: 28),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
               ),
             ),
             Text(
               unit,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 13,
-                color: Colors.grey.shade500,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
           ],
