@@ -2,89 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
 
 // ─────────────────────────────────────────────────────────────────
-//  MODEL
-// ─────────────────────────────────────────────────────────────────
-class OrderDetail {
-  final String courierName;
-  final String courierImage; // path asset foto kurir
-  final String address;
-  final String street;
-  final List<DetailItem> items;
-
-  const OrderDetail({
-    required this.courierName,
-    required this.courierImage,
-    required this.address,
-    required this.street,
-    required this.items,
-  });
-}
-
-class DetailItem {
-  final String name;
-  final double price;
-  final int qty;
-  final String imageAsset;
-
-  const DetailItem({
-    required this.name,
-    required this.price,
-    required this.qty,
-    required this.imageAsset,
-  });
-
-  double get total => price * qty;
-}
-
-// ─────────────────────────────────────────────────────────────────
-//  DATA DUMMY
-// ─────────────────────────────────────────────────────────────────
-const _dummyDetail = OrderDetail(
-  courierName: 'Hawkins Ochouv',
-  courierImage: 'assets/ethan.png',
-  address: 'Corner St.',
-  street: 'Franklin Avenue 23574',
-  items: [
-    DetailItem(
-      name: 'Avocado Blend with Topping Egg',
-      price: 8.6,
-      qty: 1,
-      imageAsset: 'assets/alpukat.png',
-    ),
-    DetailItem(
-      name: 'Random Vegetables for Breakfast',
-      price: 5.8,
-      qty: 2,
-      imageAsset: 'assets/sayuran.png',
-    ),
-    DetailItem(
-      name: 'Melted Omelette with Spicy Chilli',
-      price: 5.8,
-      qty: 2,
-      imageAsset: 'assets/telur.png',
-    ),
-    DetailItem(
-      name: 'Grilled Salmon with Herbs',
-      price: 12.5,
-      qty: 1,
-      imageAsset: 'assets/salmon.png',
-    ),
-    DetailItem(
-      name: 'Fresh Fruit Bowl with Yogurt',
-      price: 7.2,
-      qty: 3,
-      imageAsset: 'assets/buah.png',
-    ),
-  ],
-);
-
-// ─────────────────────────────────────────────────────────────────
-//  DETAILS SCREEN
+//  DETAILS SCREEN — menampilkan detail order real dari API
 // ─────────────────────────────────────────────────────────────────
 class DetailsScreen extends StatefulWidget {
-  final OrderDetail? orderDetail;
+  /// Data order dari API (Map dengan keys: id, status, total_price, items, ...)
+  final Map<String, dynamic>? orderData;
 
-  const DetailsScreen({super.key, this.orderDetail});
+  const DetailsScreen({super.key, this.orderData});
 
   @override
   State<DetailsScreen> createState() => _DetailsScreenState();
@@ -93,16 +17,23 @@ class DetailsScreen extends StatefulWidget {
 class _DetailsScreenState extends State<DetailsScreen> {
   bool _itemsExpanded = true;
 
-  late final OrderDetail _detail;
+  List<dynamic> get _items =>
+      (widget.orderData?['items'] as List<dynamic>?) ?? [];
 
-  @override
-  void initState() {
-    super.initState();
-    _detail = widget.orderDetail ?? _dummyDetail;
+  num get _grandTotal {
+    if (widget.orderData?['total_price'] != null) {
+      return widget.orderData!['total_price'] as num;
+    }
+    // Hitung manual dari items kalau total_price kosong
+    return _items.fold<double>(0.0, (sum, item) {
+      final price = (item['price'] as num?)?.toDouble() ?? 0.0;
+      final qty   = (item['quantity'] as num?)?.toDouble() ?? 1.0;
+      return sum + (price * qty);
+    });
   }
 
-  double get _grandTotal =>
-      _detail.items.fold(0, (sum, item) => sum + item.total);
+  String get _status => widget.orderData?['status'] as String? ?? 'pending';
+  String get _orderId => 'ORD-${widget.orderData?['id'] ?? '-'}';
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +46,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.maybePop(context),
         ),
-        title: const Text('Details'),
+        title: Text(_orderId),
         actions: [
           IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
         ],
@@ -134,26 +65,22 @@ class _DetailsScreenState extends State<DetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Info Kurir ─────────────────────────────
-                  _CourierCard(detail: _detail, isDark: isDark),
+                  // ── Info Kurir (statis) ─────────────────────────────
+                  _CourierCard(isDark: isDark),
 
                   const SizedBox(height: 14),
                   Divider(
-                    color: isDark
-                        ? AppColors.dividerDark
-                        : AppColors.dividerLight,
+                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
                     height: 1,
                   ),
                   const SizedBox(height: 14),
 
-                  // ── Alamat + Status ────────────────────────
-                  _AddressRow(detail: _detail, isDark: isDark),
+                  // ── Alamat + Status ─────────────────────────────────
+                  _AddressRow(status: _status, isDark: isDark),
 
                   const SizedBox(height: 20),
                   Divider(
-                    color: isDark
-                        ? AppColors.dividerDark
-                        : AppColors.dividerLight,
+                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
                     height: 1,
                   ),
                   const SizedBox(height: 16),
@@ -163,18 +90,15 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${_detail.items.length} Items',
+                        '${_items.length} Items',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimaryLight,
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                         ),
                       ),
                       GestureDetector(
-                        onTap: () =>
-                            setState(() => _itemsExpanded = !_itemsExpanded),
+                        onTap: () => setState(() => _itemsExpanded = !_itemsExpanded),
                         child: AnimatedRotation(
                           turns: _itemsExpanded ? 0 : -0.5,
                           duration: const Duration(milliseconds: 200),
@@ -184,18 +108,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: isDark
-                                    ? AppColors.primaryGreenLight
-                                    : AppColors.primaryGreen,
+                                color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
                                 width: 1.5,
                               ),
                             ),
                             child: Icon(
                               Icons.keyboard_arrow_down,
                               size: 20,
-                              color: isDark
-                                  ? AppColors.primaryGreenLight
-                                  : AppColors.primaryGreen,
+                              color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
                             ),
                           ),
                         ),
@@ -212,9 +132,18 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     firstChild: Column(
                       children: [
                         const SizedBox(height: 14),
-                        ..._detail.items.map(
-                          (item) => _DetailItemCard(item: item, isDark: isDark),
-                        ),
+                        if (_items.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              'Tidak ada item dalam order ini.',
+                              style: TextStyle(
+                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          )
+                        else
+                          ..._items.map((item) => _DetailItemCard(item: item, isDark: isDark)),
                       ],
                     ),
                     secondChild: const SizedBox.shrink(),
@@ -222,9 +151,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
                   const SizedBox(height: 8),
                   Divider(
-                    color: isDark
-                        ? AppColors.dividerDark
-                        : AppColors.dividerLight,
+                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
                     height: 1,
                   ),
                   const SizedBox(height: 16),
@@ -238,13 +165,11 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimaryLight,
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                         ),
                       ),
                       Text(
-                        '\$${_grandTotal.toStringAsFixed(1)}',
+                        'Rp ${_grandTotal.toStringAsFixed(1)}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -264,7 +189,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  WIDGET: Map dengan Zoom In/Out menggunakan gambar
+//  WIDGET: Map dengan Zoom In/Out
 // ─────────────────────────────────────────────────────────────────
 class _MapPlaceholder extends StatefulWidget {
   final bool isDark;
@@ -274,19 +199,16 @@ class _MapPlaceholder extends StatefulWidget {
   State<_MapPlaceholder> createState() => _MapPlaceholderState();
 }
 
-class _MapPlaceholderState extends State<_MapPlaceholder>
-    with SingleTickerProviderStateMixin {
-  // ── Zoom state ────────────────────────────────────────────────
-  double _scale = 1.0; // skala saat ini
-  double _previousScale = 1.0; // skala sebelum pinch
-  Offset _offset = Offset.zero; // posisi pan
+class _MapPlaceholderState extends State<_MapPlaceholder> {
+  double _scale = 1.0;
+  double _previousScale = 1.0;
+  Offset _offset = Offset.zero;
   Offset _previousOffset = Offset.zero;
 
   static const double _minScale = 1.0;
   static const double _maxScale = 4.0;
-  static const double _zoomStep = 0.5; // step tiap klik tombol
+  static const double _zoomStep = 0.5;
 
-  // ── Zoom dengan tombol ────────────────────────────────────────
   void _zoomIn() {
     setState(() {
       _scale = (_scale + _zoomStep).clamp(_minScale, _maxScale);
@@ -297,13 +219,11 @@ class _MapPlaceholderState extends State<_MapPlaceholder>
   void _zoomOut() {
     setState(() {
       _scale = (_scale - _zoomStep).clamp(_minScale, _maxScale);
-      // Reset offset saat zoom out ke minimum
       if (_scale <= _minScale) _offset = Offset.zero;
       _clampOffset();
     });
   }
 
-  // ── Batasi offset agar gambar tidak keluar area ───────────────
   void _clampOffset() {
     const mapHeight = 220.0;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -323,22 +243,14 @@ class _MapPlaceholderState extends State<_MapPlaceholder>
       child: ClipRect(
         child: Stack(
           children: [
-            // ── Gambar Peta dengan Gesture ───────────────────
             GestureDetector(
-              // Drag / Pan
               onScaleStart: (details) {
                 _previousScale = _scale;
                 _previousOffset = _offset;
               },
               onScaleUpdate: (details) {
                 setState(() {
-                  // Pinch zoom
-                  _scale = (_previousScale * details.scale).clamp(
-                    _minScale,
-                    _maxScale,
-                  );
-
-                  // Pan — hanya bisa geser kalau sudah di-zoom
+                  _scale = (_previousScale * details.scale).clamp(_minScale, _maxScale);
                   if (_scale > _minScale) {
                     _offset = _previousOffset + details.focalPointDelta;
                   }
@@ -346,9 +258,7 @@ class _MapPlaceholderState extends State<_MapPlaceholder>
                 });
               },
               onScaleEnd: (_) {
-                if (_scale <= _minScale) {
-                  setState(() => _offset = Offset.zero);
-                }
+                if (_scale <= _minScale) setState(() => _offset = Offset.zero);
               },
               child: Transform(
                 transform: Matrix4.identity()
@@ -360,29 +270,20 @@ class _MapPlaceholderState extends State<_MapPlaceholder>
                   width: double.infinity,
                   height: 220,
                   fit: BoxFit.cover,
-                  // Fallback kalau gambar belum ada
                   errorBuilder: (_, __, ___) => Container(
                     width: double.infinity,
                     height: 220,
-                    color: widget.isDark
-                        ? const Color(0xFF2A3A2A)
-                        : const Color(0xFFE8F5E9),
+                    color: widget.isDark ? const Color(0xFF2A3A2A) : const Color(0xFFE8F5E9),
                     child: CustomPaint(
                       painter: _MapPainter(isDark: widget.isDark),
                       child: const Center(
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 36,
-                        ),
+                        child: Icon(Icons.location_on, color: Colors.red, size: 36),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-
-            // ── Pin marker (tetap di tengah, tidak ikut zoom) ──
             const Positioned.fill(
               child: IgnorePointer(
                 child: Center(
@@ -390,39 +291,20 @@ class _MapPlaceholderState extends State<_MapPlaceholder>
                     Icons.location_on,
                     color: Colors.red,
                     size: 36,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black26,
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
+                    shadows: [Shadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))],
                   ),
                 ),
               ),
             ),
-
-            // ── Label "Open in Maps" ───────────────────────────
             Positioned(
               top: 12,
               left: 12,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: widget.isDark
-                      ? AppColors.surfaceDark
-                      : AppColors.backgroundLight,
+                  color: widget.isDark ? AppColors.surfaceDark : AppColors.backgroundLight,
                   borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 6, offset: const Offset(0, 2))],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -432,66 +314,35 @@ class _MapPlaceholderState extends State<_MapPlaceholder>
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: widget.isDark
-                            ? AppColors.primaryGreenLight
-                            : AppColors.primaryGreen,
+                        color: widget.isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(
-                      Icons.open_in_new,
-                      size: 13,
-                      color: widget.isDark
-                          ? AppColors.primaryGreenLight
-                          : AppColors.primaryGreen,
-                    ),
+                    Icon(Icons.open_in_new, size: 13, color: widget.isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen),
                   ],
                 ),
               ),
             ),
-
-            // ── Tombol Zoom In / Out ───────────────────────────
             Positioned(
               right: 12,
               bottom: 16,
               child: Column(
                 children: [
-                  // Tombol +
-                  _ZoomButton(
-                    icon: Icons.add,
-                    isDark: widget.isDark,
-                    enabled: _scale < _maxScale,
-                    onTap: _zoomIn,
-                  ),
+                  _ZoomButton(icon: Icons.add, isDark: widget.isDark, enabled: _scale < _maxScale, onTap: _zoomIn),
                   const SizedBox(height: 4),
-                  // Tombol -
-                  _ZoomButton(
-                    icon: Icons.remove,
-                    isDark: widget.isDark,
-                    enabled: _scale > _minScale,
-                    onTap: _zoomOut,
-                  ),
+                  _ZoomButton(icon: Icons.remove, isDark: widget.isDark, enabled: _scale > _minScale, onTap: _zoomOut),
                 ],
               ),
             ),
-
-            // ── Indikator level zoom ───────────────────────────
             Positioned(
               right: 52,
               bottom: 24,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.45),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                decoration: BoxDecoration(color: Colors.black.withOpacity(0.45), borderRadius: BorderRadius.circular(8)),
                 child: Text(
                   '${(_scale * 100).toInt()}%',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -511,12 +362,7 @@ class _ZoomButton extends StatelessWidget {
   final bool enabled;
   final VoidCallback onTap;
 
-  const _ZoomButton({
-    required this.icon,
-    required this.isDark,
-    required this.enabled,
-    required this.onTap,
-  });
+  const _ZoomButton({required this.icon, required this.isDark, required this.enabled, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -529,20 +375,14 @@ class _ZoomButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.backgroundLight,
           borderRadius: BorderRadius.circular(6),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4)],
         ),
         child: Icon(
           icon,
           size: 18,
           color: enabled
-              ? (isDark
-                    ? AppColors.textPrimaryDark
-                    : AppColors.textPrimaryLight)
-              : (isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight),
+              ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
+              : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
         ),
       ),
     );
@@ -550,7 +390,7 @@ class _ZoomButton extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  Fallback painter kalau gambar map.png belum ada
+//  Fallback painter
 // ─────────────────────────────────────────────────────────────────
 class _MapPainter extends CustomPainter {
   final bool isDark;
@@ -563,33 +403,15 @@ class _MapPainter extends CustomPainter {
       ..strokeWidth = 12
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
-
     final paint2 = Paint()
       ..color = isDark ? const Color(0xFF3A4A3A) : const Color(0xFFFFFFFF)
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
-
-    canvas.drawLine(
-      Offset(0, size.height * 0.5),
-      Offset(size.width, size.height * 0.5),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.2, 0),
-      Offset(size.width * 0.6, size.height),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.75, 0),
-      Offset(size.width * 0.75, size.height),
-      paint2,
-    );
-    canvas.drawLine(
-      Offset(0, size.height * 0.75),
-      Offset(size.width, size.height * 0.75),
-      paint2,
-    );
+    canvas.drawLine(Offset(0, size.height * 0.5), Offset(size.width, size.height * 0.5), paint);
+    canvas.drawLine(Offset(size.width * 0.2, 0), Offset(size.width * 0.6, size.height), paint);
+    canvas.drawLine(Offset(size.width * 0.75, 0), Offset(size.width * 0.75, size.height), paint2);
+    canvas.drawLine(Offset(0, size.height * 0.75), Offset(size.width, size.height * 0.75), paint2);
   }
 
   @override
@@ -597,79 +419,62 @@ class _MapPainter extends CustomPainter {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  WIDGET: Courier Card
+//  WIDGET: Courier Card (statis)
 // ─────────────────────────────────────────────────────────────────
 class _CourierCard extends StatelessWidget {
-  final OrderDetail detail;
   final bool isDark;
-  const _CourierCard({required this.detail, required this.isDark});
+  const _CourierCard({required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Foto kurir
         CircleAvatar(
           radius: 26,
-          backgroundColor: isDark
-              ? AppColors.surfaceVariantDark
-              : AppColors.surfaceVariantLight,
-          backgroundImage: AssetImage(detail.courierImage),
-          onBackgroundImageError: (_, __) {},
+          backgroundColor: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,
+          child: Icon(Icons.delivery_dining_rounded,
+              size: 28,
+              color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen),
         ),
         const SizedBox(width: 14),
-
-        // Nama + label
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Courir',
+                'Kurir',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
               ),
               Text(
-                detail.courierName,
+                'Pengiriman Ekspres',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                 ),
               ),
             ],
           ),
         ),
-
-        // Tombol telepon
         GestureDetector(
-          onTap: () {
-            // TODO: buka telepon
-          },
+          onTap: () {},
           child: Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDark
-                    ? AppColors.primaryGreenLight
-                    : AppColors.primaryGreen,
+                color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
                 width: 1.5,
               ),
             ),
             child: Icon(
               Icons.phone,
               size: 20,
-              color: isDark
-                  ? AppColors.primaryGreenLight
-                  : AppColors.primaryGreen,
+              color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
             ),
           ),
         ),
@@ -679,12 +484,31 @@ class _CourierCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  WIDGET: Address Row
+//  WIDGET: Address Row — menampilkan status order nyata
 // ─────────────────────────────────────────────────────────────────
 class _AddressRow extends StatelessWidget {
-  final OrderDetail detail;
+  final String status;
   final bool isDark;
-  const _AddressRow({required this.detail, required this.isDark});
+  const _AddressRow({required this.status, required this.isDark});
+
+  Color get _statusColor {
+    if (status == 'done' || status == 'completed') return AppColors.primaryGreen;
+    if (status == 'processing') return Colors.blue;
+    return Colors.orange;
+  }
+
+  String get _statusLabel {
+    switch (status) {
+      case 'done':
+      case 'completed':
+        return 'Selesai';
+      case 'processing':
+        return 'Diproses';
+      case 'pending':
+      default:
+        return 'Menunggu';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -698,43 +522,33 @@ class _AddressRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                detail.address,
+                'Alamat Pengiriman',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                 ),
               ),
               Text(
-                detail.street,
+                'Jl. Contoh No. 123',
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(width: 10),
-
-        // Badge status
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.accent,
+            color: _statusColor,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Text(
-            'On Delivery',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-            ),
+          child: Text(
+            _statusLabel,
+            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -743,63 +557,58 @@ class _AddressRow extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  WIDGET: Detail Item Card
+//  WIDGET: Detail Item Card — menggunakan data dari API
 // ─────────────────────────────────────────────────────────────────
 class _DetailItemCard extends StatelessWidget {
-  final DetailItem item;
+  final Map<String, dynamic> item;
   final bool isDark;
   const _DetailItemCard({required this.item, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final product = item['product'] as Map<String, dynamic>? ?? {};
+    final String name = product['name'] as String? ?? 'Produk';
+    final num price  = (item['price'] as num?) ?? 0;
+    final num qty    = (item['quantity'] as num?) ?? 1;
+    final String imageUrl =
+        (product['image_url'] as String?)?.isNotEmpty == true
+            ? product['image_url'] as String
+            : (product['image'] as String? ?? '');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Foto
+          // ── Gambar produk ──────────────────────────────────────
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              item.imageAsset,
+            child: SizedBox(
               width: 80,
               height: 80,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceVariantDark
-                      : AppColors.surfaceVariantLight,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.fastfood_outlined,
-                  size: 30,
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                ),
-              ),
+              child: imageUrl.isNotEmpty
+                  ? Image.network(
+                      imageUrl,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _placeholder(),
+                    )
+                  : _placeholder(),
             ),
           ),
 
           const SizedBox(width: 14),
 
-          // Info
+          // ── Info ───────────────────────────────────────────────
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontSize: 14,
-                    height: 1.3,
-                  ),
+                  name,
+                  style: theme.textTheme.titleSmall?.copyWith(fontSize: 14, height: 1.3),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -807,20 +616,18 @@ class _DetailItemCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '\$${item.price.toStringAsFixed(1)}',
+                      '\$$price',
                       style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
-                        '${item.qty}x',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 13,
-                        ),
+                        '${qty}x',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
                       ),
                     ),
                     Text(
-                      '\$${item.total.toStringAsFixed(1)}',
+                      '\$${(price * qty).toStringAsFixed(1)}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontSize: 13,
                         color: AppColors.priceGreen,
@@ -833,6 +640,22 @@ class _DetailItemCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _placeholder() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(
+        Icons.fastfood_outlined,
+        size: 30,
+        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
       ),
     );
   }

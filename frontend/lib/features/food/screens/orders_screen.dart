@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/../../theme/app_colors.dart';
+import '../../../theme/app_colors.dart';
 import 'detail_location_screen.dart';
 import '../../main_menu/screens/main_menu_drawer.dart';
 import '../../../services/api_service.dart';
@@ -295,33 +295,23 @@ class _OrdersScreenState extends State<OrdersScreen> with RouteAware {
                         : ListView.builder(
                             padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
                             itemCount: filtered.length,
-                            itemBuilder: (_, i) =>
-                                _OrderCard(order: filtered[i]),
+                            itemBuilder: (_, i) => GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DetailsScreen(
+                                        orderData: filtered[i] as Map<String, dynamic>),
+                                  ),
+                                );
+                              },
+                              child: _OrderCard(order: filtered[i]),
+                            ),
                           ),
                   ),
                 ),
               ],
             ),
-
-      // ── Place Order Button → DetailsScreen ───────────────────
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 65),
-            ),
-            onPressed: filtered.isEmpty
-                ? null
-                : () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const DetailsScreen()),
-                    );
-                  },
-            child: const Text('PLACE ORDER', style: TextStyle(fontSize: 18)),
-          ),
-        ),
-      ),
     );
   }
 }

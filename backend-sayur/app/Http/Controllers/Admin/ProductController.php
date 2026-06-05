@@ -24,14 +24,21 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required',
+            'name'        => 'required|unique:products,name',
             'category_id' => 'required|exists:categories,id',
             'price'       => 'required|numeric',
             'stock'       => 'required|integer',
         ]);
 
+        $slug = Str::slug($request->name);
+        
+        // Cek apakah slug sudah ada (untuk kasus nama mirip tapi beda karakter)
+        if (Product::where('slug', $slug)->exists()) {
+            return back()->withErrors(['name' => 'Nama produk ini menghasilkan URL yang sudah terpakai. Gunakan nama lain.'])->withInput();
+        }
+
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
+        $data['slug'] = $slug;
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
@@ -49,8 +56,22 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $request->validate([
+            'name'        => 'required|unique:products,name,' . $product->id,
+            'category_id' => 'required|exists:categories,id',
+            'price'       => 'required|numeric',
+            'stock'       => 'required|integer',
+        ]);
+
+        $slug = Str::slug($request->name);
+
+        // Cek apakah slug sudah ada di produk LAIN
+        if (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+            return back()->withErrors(['name' => 'Nama produk ini menghasilkan URL yang sudah terpakai. Gunakan nama lain.'])->withInput();
+        }
+
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
+        $data['slug'] = $slug;
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');

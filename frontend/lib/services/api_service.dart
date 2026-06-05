@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // Untuk Flutter Web (Chrome Desktop) atau development lokal
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'http://localhost:8000/api';
   // Untuk Android emulator: 'http://10.0.2.2:8000/api'
   // Untuk device fisik: 'http://192.168.x.x:8000/api'
 
@@ -123,6 +123,14 @@ class ApiService {
       Uri.parse('$baseUrl/orders'),
       headers: await getHeaders(withAuth: true),
       body: jsonEncode({'items': items}),
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> getOrderDetail(int id) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/orders/$id'),
+      headers: await getHeaders(withAuth: true),
     );
     return jsonDecode(response.body);
   }

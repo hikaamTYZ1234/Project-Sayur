@@ -207,6 +207,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return;
                     }
 
+                    // Email format validation
+                    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                    if (!emailRegex.hasMatch(_emailController.text)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Format email tidak valid (gunakan titik, bukan koma)'),
+                        ),
+                      );
+                      return;
+                    }
+
                     // Save context reference before async
                     final scaffoldMessenger = ScaffoldMessenger.of(context);
                     final navigationContext = context;

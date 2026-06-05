@@ -13,6 +13,12 @@ class Product extends Model
     public function getImageUrlAttribute(): ?string
     {
         if (!$this->image) return null;
+        
+        // Jika sudah berupa URL lengkap (http/https), kembalikan langsung
+        if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+            return $this->image;
+        }
+
         return Storage::disk('public')->url($this->image);
     }
 

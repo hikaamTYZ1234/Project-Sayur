@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../services/api_service.dart';
 import '../../../theme/app_colors.dart';
+import 'detail_location_screen.dart';
 
 class FoodDetailScreen extends StatefulWidget {
   const FoodDetailScreen({super.key});
@@ -11,6 +12,8 @@ class FoodDetailScreen extends StatefulWidget {
 
 class _FoodDetailScreenState extends State<FoodDetailScreen> {
   late Future<Map<String, dynamic>?> _foodFuture;
+  int _quantity = 1;
+  bool _isOrdering = false;
 
   @override
   void didChangeDependencies() {
@@ -32,6 +35,78 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
       return args;
     }
     return null;
+  }
+
+  Future<void> _checkout(Map<String, dynamic> item) async {
+    final token = await ApiService.getToken();
+    if (token == null) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Login Diperlukan'),
+          content: const Text('Silahkan login terlebih dahulu untuk melakukan pemesanan.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/login');
+              },
+              child: const Text('Login'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isOrdering = true);
+    try {
+      final idValue = item['id'] ?? item['product_id'];
+      final productId = int.tryParse('$idValue');
+      if (productId == null) throw 'ID produk tidak valid';
+
+      final result = await ApiService.createOrder([
+        {'product_id': productId, 'quantity': _quantity},
+      ]);
+
+      if (!mounted) return;
+      // Ambil order yang baru dibuat dan navigasi ke DetailsScreen
+      final Map<String, dynamic>? newOrder = result['order'] as Map<String, dynamic>?;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Order berhasil!'),
+          backgroundColor: AppColors.primaryGreen,
+        ),
+      );
+
+      await Navigator.pushNamed(context, '/orders');
+
+      if (newOrder != null && mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailsScreen(orderData: newOrder),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal membuat order: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isOrdering = false);
+    }
   }
 
   @override
@@ -99,15 +174,18 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
             ? (item['category'] as Map<String, dynamic>)['name'] as String? ??
                   'Bread, Avocado, Leaf'
             : item['ingredients'] as String? ?? 'Bread, Avocado, Leaf';
-        final String price = item['price'] != null
-            ? '\$${item['price']}'
-            : item['price'] as String? ?? '\$5.7';
+        final num? rawPrice = item['price'] is num ? item['price'] as num : null;
+        final String priceDisplay = rawPrice != null
+            ? 'Rp ${rawPrice.toStringAsFixed(0)}'
+            : item['price'] as String? ?? 'Rp 0';
         final String description =
             item['description'] as String? ??
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.';
 
+        // Hitung total harga
+        final double totalPrice = ((rawPrice ?? 0) * _quantity).toDouble();
+
         return Scaffold(
-          // ── Background ikut theme ──────────────────────────────────
           backgroundColor: isDark
               ? AppColors.backgroundDark
               : AppColors.backgroundLight,
@@ -120,22 +198,33 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                 left: 0,
                 right: 0,
                 height: MediaQuery.of(context).size.height * 0.45,
-                child: Image.network(
-                  image,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: isDark
-                        ? AppColors.surfaceVariantDark
-                        : AppColors.surfaceVariantLight,
-                    child: Icon(
-                      Icons.fastfood_outlined,
-                      size: 80,
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
-                ),
+                child: image.startsWith('http')
+                    ? Image.network(
+                        image,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: isDark
+                              ? AppColors.surfaceVariantDark
+                              : AppColors.surfaceVariantLight,
+                          child: Icon(
+                            Icons.fastfood_outlined,
+                            size: 80,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                      )
+                    : Image.asset(
+                        image,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: isDark
+                              ? AppColors.surfaceVariantDark
+                              : AppColors.surfaceVariantLight,
+                          child: const Icon(Icons.fastfood_outlined, size: 80),
+                        ),
+                      ),
               ),
 
               // ── 2. Gradient overlay AppBar ───────────────────────
@@ -163,7 +252,6 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                 bottom: 0,
                 child: Container(
                   decoration: BoxDecoration(
-                    // ✅ Warna container ikut theme
                     color: isDark
                         ? AppColors.backgroundDark
                         : AppColors.backgroundLight,
@@ -176,7 +264,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                       top: 40,
                       left: 24,
                       right: 24,
-                      bottom: 40,
+                      bottom: 120, // ruang untuk tombol bawah
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,34 +297,13 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Bintang
                                 Row(
                                   children: const [
-                                    Icon(
-                                      Icons.star,
-                                      color: Color(0xFFFF8C00),
-                                      size: 20,
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      color: Color(0xFFFF8C00),
-                                      size: 20,
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      color: Color(0xFFFF8C00),
-                                      size: 20,
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      color: Color(0xFFFF8C00),
-                                      size: 20,
-                                    ),
-                                    Icon(
-                                      Icons.star_half,
-                                      color: Color(0xFFFF8C00),
-                                      size: 20,
-                                    ),
+                                    Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
+                                    Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
+                                    Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
+                                    Icon(Icons.star, color: Color(0xFFFF8C00), size: 20),
+                                    Icon(Icons.star_half, color: Color(0xFFFF8C00), size: 20),
                                   ],
                                 ),
                                 const SizedBox(height: 6),
@@ -244,33 +311,25 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                   children: [
                                     Text(
                                       '4.5',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(fontSize: 16),
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
                                       '(128 reviews)',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            fontSize: 14,
-                                            color: isDark
-                                                ? AppColors.textSecondaryDark
-                                                : AppColors.textSecondaryLight,
-                                          ),
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        fontSize: 14,
+                                        color: isDark
+                                            ? AppColors.textSecondaryDark
+                                            : AppColors.textSecondaryLight,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
-
-                            // Harga — pakai priceGreen sesuai desain
                             Text(
-                              price,
-                              style: TextStyle(
+                              priceDisplay,
+                              style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.priceGreen,
@@ -281,9 +340,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
 
                         const SizedBox(height: 24),
                         Divider(
-                          color: isDark
-                              ? AppColors.dividerDark
-                              : AppColors.dividerLight,
+                          color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
                           thickness: 1.5,
                         ),
                         const SizedBox(height: 24),
@@ -292,24 +349,9 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _NutritionInfo(
-                              icon: Icons.whatshot,
-                              value: '160 g',
-                              unit: 'Protein',
-                              isDark: isDark,
-                            ),
-                            _NutritionInfo(
-                              icon: Icons.opacity,
-                              value: '45 g',
-                              unit: 'Carbs',
-                              isDark: isDark,
-                            ),
-                            _NutritionInfo(
-                              icon: Icons.bolt,
-                              value: 'A+',
-                              unit: 'Vitamin',
-                              isDark: isDark,
-                            ),
+                            _NutritionInfo(icon: Icons.whatshot, value: '160 g', unit: 'Protein', isDark: isDark),
+                            _NutritionInfo(icon: Icons.opacity, value: '45 g', unit: 'Carbs', isDark: isDark),
+                            _NutritionInfo(icon: Icons.bolt, value: 'A+', unit: 'Vitamin', isDark: isDark),
                           ],
                         ),
 
@@ -318,21 +360,49 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         // ── Deskripsi ──────────────────────────────
                         Text(
                           'Description',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           description,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                fontSize: 14,
-                                height: 1.6,
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 14,
+                            height: 1.6,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // ── Quantity Selector ──────────────────────
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _QtyButton(
+                              icon: Icons.remove,
+                              isDark: isDark,
+                              enabled: _quantity > 1,
+                              onTap: () => setState(() => _quantity--),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 28),
+                              child: Text(
+                                '$_quantity',
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 26,
+                                ),
                               ),
+                            ),
+                            _QtyButton(
+                              icon: Icons.add,
+                              isDark: isDark,
+                              enabled: true,
+                              onTap: () => setState(() => _quantity++),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -340,7 +410,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                 ),
               ),
 
-              // ── 4. Tombol Cart (Floating) ────────────────────────
+              // ── 4. Tombol Cart (Floating ke /orders) ────────────────────────
               Positioned(
                 top: MediaQuery.of(context).size.height * 0.40 - 30,
                 right: 32,
@@ -350,18 +420,16 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      // ✅ Warna tombol ikut theme (hijau di light, hijau muda di dark)
                       color: isDark
                           ? AppColors.primaryGreenLight
                           : AppColors.primaryGreen,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              (isDark
-                                      ? AppColors.primaryGreenLight
-                                      : AppColors.primaryGreen)
-                                  .withOpacity(0.4),
+                          color: (isDark
+                                  ? AppColors.primaryGreenLight
+                                  : AppColors.primaryGreen)
+                              .withOpacity(0.4),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -383,20 +451,12 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                 right: 0,
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Tombol Back
                         IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                            size: 28,
-                          ),
+                          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
                           onPressed: () {
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);
@@ -405,27 +465,86 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             }
                           },
                         ),
-
-                        // Judul AppBar
                         const Text(
                           'Details',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.bookmark_border, color: Colors.white, size: 28),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // ── 6. Tombol Checkout di Bawah ───────────────────────
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, -4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Total Harga',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                ),
+                              ),
+                              Text(
+                                'Rp ${totalPrice.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.priceGreen,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-
-                        // Tombol Bookmark
-                        IconButton(
-                          icon: const Icon(
-                            Icons.bookmark_border,
-                            color: Colors.white,
-                            size: 28,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 54),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            onPressed: _isOrdering ? null : () => _checkout(item),
+                            icon: _isOrdering
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Icon(Icons.shopping_bag_outlined, size: 20),
+                            label: Text(
+                              _isOrdering ? 'Memesan...' : 'Checkout',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          onPressed: () {
-                            // TODO: bookmark
-                          },
                         ),
                       ],
                     ),
@@ -436,6 +555,55 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  WIDGET: Quantity Button
+// ─────────────────────────────────────────────────────────────────
+class _QtyButton extends StatelessWidget {
+  final IconData icon;
+  final bool isDark;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _QtyButton({
+    required this.icon,
+    required this.isDark,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: enabled
+              ? (isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen)
+              : (isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight),
+          shape: BoxShape.circle,
+          boxShadow: enabled
+              ? [
+                  BoxShadow(
+                    color: AppColors.primaryGreen.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  )
+                ]
+              : [],
+        ),
+        child: Icon(
+          icon,
+          size: 22,
+          color: enabled ? Colors.white : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+        ),
+      ),
     );
   }
 }
@@ -467,17 +635,13 @@ class _NutritionInfo extends StatelessWidget {
           children: [
             Text(
               value,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontSize: 16),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16),
             ),
             Text(
               unit,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 13,
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
           ],
