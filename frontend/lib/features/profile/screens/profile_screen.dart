@@ -2,15 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/theme_provider.dart';
+import '../../../services/api_service.dart';
 
 // Import file drawer buatan teman Mas
 import '../../main_menu/screens/main_menu_drawer.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   // Warna hijau khusus disesuaikan dengan tema aplikasi "Sayur"
   static const Color _sayurGreen = Color(0xFF3BA660);
+
+  late Future<Map<String, dynamic>?> _userDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _userDataFuture = ApiService.getUserData();
+  }
+
+  void _refreshUserData() {
+    setState(() {
+      _userDataFuture = ApiService.getMe().then(
+        (data) => data,
+        onError: (_) => ApiService.getUserData(),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,32 +70,52 @@ class ProfileScreen extends StatelessWidget {
       // activeIndex: 3 karena Profile ada di index ke-3 pada menu
       drawer: const MainMenuDrawer(activeIndex: 3),
 
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAppBar(textPrimary),
-              const SizedBox(height: 16),
-              _buildProfileHeader(primaryGreen, avatarBorder),
-              const SizedBox(height: 24),
-              _buildUserInfo(textTheme, textPrimary, textSecondary),
-              const SizedBox(height: 24),
-              _buildContactIcons(iconBg, primaryGreen, textSecondary),
-              const SizedBox(height: 24),
-              Divider(color: divider, thickness: 1, indent: 24, endIndent: 24),
-              const SizedBox(height: 20),
-              _buildSavedMenu(context, textPrimary, isDark, primaryGreen),
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
+      body: FutureBuilder<Map<String, dynamic>?>(
+        future: _userDataFuture,
+        builder: (context, snapshot) {
+          final userData = snapshot.data ?? {};
+          final userName = userData['name'] as String? ?? 'User';
+          final userEmail = userData['email'] as String? ?? 'email@example.com';
+
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildAppBar(textPrimary, isDark, () => _refreshUserData()),
+                  const SizedBox(height: 16),
+                  _buildProfileHeader(primaryGreen, avatarBorder, userName),
+                  const SizedBox(height: 24),
+                  _buildUserInfo(
+                    textTheme,
+                    textPrimary,
+                    textSecondary,
+                    userName,
+                    userEmail,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildContactIcons(iconBg, primaryGreen, textSecondary),
+                  const SizedBox(height: 24),
+                  Divider(
+                    color: divider,
+                    thickness: 1,
+                    indent: 24,
+                    endIndent: 24,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildSavedMenu(context, textPrimary, isDark, primaryGreen),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   // ── App Bar ──────────────────────────────────────────────────────────────
-  Widget _buildAppBar(Color textColor) {
+  Widget _buildAppBar(Color textColor, bool isDark, VoidCallback onRefresh) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -116,10 +159,10 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
 
-          // Edit Icon (Kanan)
+          // Refresh Icon (Kanan)
           GestureDetector(
-            onTap: () {},
-            child: Icon(Icons.edit_outlined, color: textColor, size: 24),
+            onTap: onRefresh,
+            child: Icon(Icons.refresh_outlined, color: textColor, size: 24),
           ),
         ],
       ),
@@ -138,7 +181,11 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ── Profile Header Card ──────────────────────────────────────────────────
-  Widget _buildProfileHeader(Color primaryGreen, Color avatarBorder) {
+  Widget _buildProfileHeader(
+    Color primaryGreen,
+    Color avatarBorder,
+    String userName,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Stack(
@@ -162,8 +209,8 @@ class ProfileScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStatColumn('237', 'Transactions'),
-                  _buildStatColumn('19', 'Reviews'),
+                  _buildStatColumn('12', 'Orders'),
+                  _buildStatColumn('5', 'Reviews'),
                 ],
               ),
             ),
@@ -184,9 +231,17 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 44,
-              backgroundImage: AssetImage('assets/avatar.png'),
+              backgroundColor: _sayurGreen,
+              child: Text(
+                userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         ],
@@ -220,29 +275,27 @@ class ProfileScreen extends StatelessWidget {
     TextTheme textTheme,
     Color textPrimary,
     Color textSecondary,
+    String userName,
+    String userEmail,
   ) {
     return Center(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'London, England',
+            userName,
             style: textTheme.headlineMedium?.copyWith(
               color: textPrimary,
               fontWeight: FontWeight.bold,
               fontSize: 22,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.location_on_outlined, size: 16, color: textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                'London, England',
-                style: textTheme.bodyMedium?.copyWith(color: textSecondary),
-              ),
-            ],
+          Text(
+            userEmail,
+            style: textTheme.bodyMedium?.copyWith(color: textSecondary),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
+import '../../../services/api_service.dart';
+
+num _parseNum(dynamic value) {
+  if (value is num) return value;
+  if (value is String) {
+    return num.tryParse(value.replaceAll(',', '').trim()) ?? 0;
+  }
+  return 0;
+}
 
 // ─────────────────────────────────────────────────────────────────
 //  DETAILS SCREEN — menampilkan detail order real dari API
@@ -21,13 +30,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
       (widget.orderData?['items'] as List<dynamic>?) ?? [];
 
   num get _grandTotal {
-    if (widget.orderData?['total_price'] != null) {
-      return widget.orderData!['total_price'] as num;
+    final totalValue = widget.orderData?['total_price'];
+    if (totalValue != null) {
+      return _parseNum(totalValue);
     }
     // Hitung manual dari items kalau total_price kosong
     return _items.fold<double>(0.0, (sum, item) {
-      final price = (item['price'] as num?)?.toDouble() ?? 0.0;
-      final qty   = (item['quantity'] as num?)?.toDouble() ?? 1.0;
+      final price = _parseNum(item['price']).toDouble();
+      final qty = _parseNum(item['quantity']).toDouble();
       return sum + (price * qty);
     });
   }
@@ -70,7 +80,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
                   const SizedBox(height: 14),
                   Divider(
-                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+                    color: isDark
+                        ? AppColors.dividerDark
+                        : AppColors.dividerLight,
                     height: 1,
                   ),
                   const SizedBox(height: 14),
@@ -80,7 +92,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
                   const SizedBox(height: 20),
                   Divider(
-                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+                    color: isDark
+                        ? AppColors.dividerDark
+                        : AppColors.dividerLight,
                     height: 1,
                   ),
                   const SizedBox(height: 16),
@@ -94,11 +108,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => setState(() => _itemsExpanded = !_itemsExpanded),
+                        onTap: () =>
+                            setState(() => _itemsExpanded = !_itemsExpanded),
                         child: AnimatedRotation(
                           turns: _itemsExpanded ? 0 : -0.5,
                           duration: const Duration(milliseconds: 200),
@@ -108,14 +125,18 @@ class _DetailsScreenState extends State<DetailsScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+                                color: isDark
+                                    ? AppColors.primaryGreenLight
+                                    : AppColors.primaryGreen,
                                 width: 1.5,
                               ),
                             ),
                             child: Icon(
                               Icons.keyboard_arrow_down,
                               size: 20,
-                              color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+                              color: isDark
+                                  ? AppColors.primaryGreenLight
+                                  : AppColors.primaryGreen,
                             ),
                           ),
                         ),
@@ -138,12 +159,17 @@ class _DetailsScreenState extends State<DetailsScreen> {
                             child: Text(
                               'Tidak ada item dalam order ini.',
                               style: TextStyle(
-                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                               ),
                             ),
                           )
                         else
-                          ..._items.map((item) => _DetailItemCard(item: item, isDark: isDark)),
+                          ..._items.map(
+                            (item) =>
+                                _DetailItemCard(item: item, isDark: isDark),
+                          ),
                       ],
                     ),
                     secondChild: const SizedBox.shrink(),
@@ -151,7 +177,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
                   const SizedBox(height: 8),
                   Divider(
-                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+                    color: isDark
+                        ? AppColors.dividerDark
+                        : AppColors.dividerLight,
                     height: 1,
                   ),
                   const SizedBox(height: 16),
@@ -165,7 +193,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       Text(
@@ -250,7 +280,10 @@ class _MapPlaceholderState extends State<_MapPlaceholder> {
               },
               onScaleUpdate: (details) {
                 setState(() {
-                  _scale = (_previousScale * details.scale).clamp(_minScale, _maxScale);
+                  _scale = (_previousScale * details.scale).clamp(
+                    _minScale,
+                    _maxScale,
+                  );
                   if (_scale > _minScale) {
                     _offset = _previousOffset + details.focalPointDelta;
                   }
@@ -273,11 +306,17 @@ class _MapPlaceholderState extends State<_MapPlaceholder> {
                   errorBuilder: (_, __, ___) => Container(
                     width: double.infinity,
                     height: 220,
-                    color: widget.isDark ? const Color(0xFF2A3A2A) : const Color(0xFFE8F5E9),
+                    color: widget.isDark
+                        ? const Color(0xFF2A3A2A)
+                        : const Color(0xFFE8F5E9),
                     child: CustomPaint(
                       painter: _MapPainter(isDark: widget.isDark),
                       child: const Center(
-                        child: Icon(Icons.location_on, color: Colors.red, size: 36),
+                        child: Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 36,
+                        ),
                       ),
                     ),
                   ),
@@ -291,7 +330,13 @@ class _MapPlaceholderState extends State<_MapPlaceholder> {
                     Icons.location_on,
                     color: Colors.red,
                     size: 36,
-                    shadows: [Shadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))],
+                    shadows: [
+                      Shadow(
+                        color: Colors.black26,
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -300,11 +345,22 @@ class _MapPlaceholderState extends State<_MapPlaceholder> {
               top: 12,
               left: 12,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: widget.isDark ? AppColors.surfaceDark : AppColors.backgroundLight,
+                  color: widget.isDark
+                      ? AppColors.surfaceDark
+                      : AppColors.backgroundLight,
                   borderRadius: BorderRadius.circular(8),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 6, offset: const Offset(0, 2))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -314,11 +370,19 @@ class _MapPlaceholderState extends State<_MapPlaceholder> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: widget.isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+                        color: widget.isDark
+                            ? AppColors.primaryGreenLight
+                            : AppColors.primaryGreen,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(Icons.open_in_new, size: 13, color: widget.isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen),
+                    Icon(
+                      Icons.open_in_new,
+                      size: 13,
+                      color: widget.isDark
+                          ? AppColors.primaryGreenLight
+                          : AppColors.primaryGreen,
+                    ),
                   ],
                 ),
               ),
@@ -328,9 +392,19 @@ class _MapPlaceholderState extends State<_MapPlaceholder> {
               bottom: 16,
               child: Column(
                 children: [
-                  _ZoomButton(icon: Icons.add, isDark: widget.isDark, enabled: _scale < _maxScale, onTap: _zoomIn),
+                  _ZoomButton(
+                    icon: Icons.add,
+                    isDark: widget.isDark,
+                    enabled: _scale < _maxScale,
+                    onTap: _zoomIn,
+                  ),
                   const SizedBox(height: 4),
-                  _ZoomButton(icon: Icons.remove, isDark: widget.isDark, enabled: _scale > _minScale, onTap: _zoomOut),
+                  _ZoomButton(
+                    icon: Icons.remove,
+                    isDark: widget.isDark,
+                    enabled: _scale > _minScale,
+                    onTap: _zoomOut,
+                  ),
                 ],
               ),
             ),
@@ -339,10 +413,17 @@ class _MapPlaceholderState extends State<_MapPlaceholder> {
               bottom: 24,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: Colors.black.withOpacity(0.45), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.45),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Text(
                   '${(_scale * 100).toInt()}%',
-                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -362,7 +443,12 @@ class _ZoomButton extends StatelessWidget {
   final bool enabled;
   final VoidCallback onTap;
 
-  const _ZoomButton({required this.icon, required this.isDark, required this.enabled, required this.onTap});
+  const _ZoomButton({
+    required this.icon,
+    required this.isDark,
+    required this.enabled,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -375,14 +461,20 @@ class _ZoomButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.backgroundLight,
           borderRadius: BorderRadius.circular(6),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4),
+          ],
         ),
         child: Icon(
           icon,
           size: 18,
           color: enabled
-              ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-              : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+              ? (isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimaryLight)
+              : (isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight),
         ),
       ),
     );
@@ -408,10 +500,26 @@ class _MapPainter extends CustomPainter {
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
-    canvas.drawLine(Offset(0, size.height * 0.5), Offset(size.width, size.height * 0.5), paint);
-    canvas.drawLine(Offset(size.width * 0.2, 0), Offset(size.width * 0.6, size.height), paint);
-    canvas.drawLine(Offset(size.width * 0.75, 0), Offset(size.width * 0.75, size.height), paint2);
-    canvas.drawLine(Offset(0, size.height * 0.75), Offset(size.width, size.height * 0.75), paint2);
+    canvas.drawLine(
+      Offset(0, size.height * 0.5),
+      Offset(size.width, size.height * 0.5),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.2, 0),
+      Offset(size.width * 0.6, size.height),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.75, 0),
+      Offset(size.width * 0.75, size.height),
+      paint2,
+    );
+    canvas.drawLine(
+      Offset(0, size.height * 0.75),
+      Offset(size.width, size.height * 0.75),
+      paint2,
+    );
   }
 
   @override
@@ -431,10 +539,16 @@ class _CourierCard extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 26,
-          backgroundColor: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,
-          child: Icon(Icons.delivery_dining_rounded,
-              size: 28,
-              color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen),
+          backgroundColor: isDark
+              ? AppColors.surfaceVariantDark
+              : AppColors.surfaceVariantLight,
+          child: Icon(
+            Icons.delivery_dining_rounded,
+            size: 28,
+            color: isDark
+                ? AppColors.primaryGreenLight
+                : AppColors.primaryGreen,
+          ),
         ),
         const SizedBox(width: 14),
         Expanded(
@@ -445,7 +559,9 @@ class _CourierCard extends StatelessWidget {
                 'Kurir',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
               Text(
@@ -453,7 +569,9 @@ class _CourierCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
               ),
             ],
@@ -467,14 +585,18 @@ class _CourierCard extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+                color: isDark
+                    ? AppColors.primaryGreenLight
+                    : AppColors.primaryGreen,
                 width: 1.5,
               ),
             ),
             child: Icon(
               Icons.phone,
               size: 20,
-              color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+              color: isDark
+                  ? AppColors.primaryGreenLight
+                  : AppColors.primaryGreen,
             ),
           ),
         ),
@@ -492,7 +614,8 @@ class _AddressRow extends StatelessWidget {
   const _AddressRow({required this.status, required this.isDark});
 
   Color get _statusColor {
-    if (status == 'done' || status == 'completed') return AppColors.primaryGreen;
+    if (status == 'done' || status == 'completed')
+      return AppColors.primaryGreen;
     if (status == 'processing') return Colors.blue;
     return Colors.orange;
   }
@@ -526,14 +649,18 @@ class _AddressRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
               ),
               Text(
                 'Jl. Contoh No. 123',
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
             ],
@@ -548,7 +675,11 @@ class _AddressRow extends StatelessWidget {
           ),
           child: Text(
             _statusLabel,
-            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],
@@ -569,12 +700,13 @@ class _DetailItemCard extends StatelessWidget {
     final theme = Theme.of(context);
     final product = item['product'] as Map<String, dynamic>? ?? {};
     final String name = product['name'] as String? ?? 'Produk';
-    final num price  = (item['price'] as num?) ?? 0;
-    final num qty    = (item['quantity'] as num?) ?? 1;
-    final String imageUrl =
-        (product['image_url'] as String?)?.isNotEmpty == true
-            ? product['image_url'] as String
-            : (product['image'] as String? ?? '');
+    final num price = _parseNum(item['price']);
+    final num qty = _parseNum(item['quantity']);
+    final String imageUrl = ApiService.fixImageUrl(
+      (product['image_url'] as String?)?.isNotEmpty == true
+          ? product['image_url'] as String
+          : (product['image'] as String? ?? ''),
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
@@ -587,12 +719,14 @@ class _DetailItemCard extends StatelessWidget {
             child: SizedBox(
               width: 80,
               height: 80,
-              child: imageUrl.isNotEmpty
+              child: imageUrl.isNotEmpty && imageUrl.startsWith('http')
                   ? Image.network(
                       imageUrl,
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
+                      loadingBuilder: (_, child, loadingProgress) =>
+                          loadingProgress == null ? child : _placeholder(),
                       errorBuilder: (_, __, ___) => _placeholder(),
                     )
                   : _placeholder(),
@@ -608,7 +742,10 @@ class _DetailItemCard extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: theme.textTheme.titleSmall?.copyWith(fontSize: 14, height: 1.3),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontSize: 14,
+                    height: 1.3,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -623,7 +760,9 @@ class _DetailItemCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         '${qty}x',
-                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                     Text(
@@ -649,13 +788,17 @@ class _DetailItemCard extends StatelessWidget {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariantLight,
+        color: isDark
+            ? AppColors.surfaceVariantDark
+            : AppColors.surfaceVariantLight,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(
         Icons.fastfood_outlined,
         size: 30,
-        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+        color: isDark
+            ? AppColors.textSecondaryDark
+            : AppColors.textSecondaryLight,
       ),
     );
   }

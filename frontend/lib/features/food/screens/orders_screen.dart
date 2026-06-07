@@ -301,7 +301,9 @@ class _OrdersScreenState extends State<OrdersScreen> with RouteAware {
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => DetailsScreen(
-                                        orderData: filtered[i] as Map<String, dynamic>),
+                                      orderData:
+                                          filtered[i] as Map<String, dynamic>,
+                                    ),
                                   ),
                                 );
                               },
@@ -489,13 +491,24 @@ class _OrderCard extends StatelessWidget {
           // Items
           ...items.map((item) {
             final product = item['product'] as Map<String, dynamic>? ?? {};
-            final imageUrl =
-                (product['image_url'] as String?)?.isNotEmpty == true
-                ? product['image_url'] as String
-                : (product['image'] as String? ?? '');
-            final qty = item['quantity'] ?? 1;
-            final price = item['price'];
-            final total = (price is num && qty is num) ? price * qty : 0;
+            final imageUrl = ApiService.fixImageUrl(
+              (product['image_url'] as String?)?.isNotEmpty == true
+                  ? product['image_url'] as String
+                  : (product['image'] as String? ?? ''),
+            );
+            final num qty = item['quantity'] is num
+                ? item['quantity'] as num
+                : num.tryParse(
+                        '${item['quantity'] ?? ''}'.replaceAll(',', '').trim(),
+                      ) ??
+                      0;
+            final num price = item['price'] is num
+                ? item['price'] as num
+                : num.tryParse(
+                        '${item['price'] ?? ''}'.replaceAll(',', '').trim(),
+                      ) ??
+                      0;
+            final total = price * qty;
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(

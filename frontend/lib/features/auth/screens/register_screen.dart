@@ -208,11 +208,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     }
 
                     // Email format validation
-                    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                    final emailRegex = RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    );
                     if (!emailRegex.hasMatch(_emailController.text)) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Format email tidak valid (gunakan titik, bukan koma)'),
+                          content: Text(
+                            'Format email tidak valid (gunakan titik, bukan koma)',
+                          ),
                         ),
                       );
                       return;
@@ -231,6 +235,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       if (result['token'] != null) {
                         if (mounted) {
+                          // Simpan token dan user data
+                          await ApiService.saveToken(result['token']);
+                          if (result['user'] != null) {
+                            await ApiService.saveUserData(result['user']);
+                          }
                           scaffoldMessenger.showSnackBar(
                             const SnackBar(
                               content: Text(

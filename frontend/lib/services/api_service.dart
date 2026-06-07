@@ -8,6 +8,20 @@ class ApiService {
   // Untuk Android emulator: 'http://10.0.2.2:8000/api'
   // Untuk device fisik: 'http://192.168.x.x:8000/api'
 
+  /// Perbaiki image_url dari backend agar host-nya sesuai dengan baseUrl.
+  /// Contoh: 'http://localhost/storage/x.jpg' → 'http://10.0.2.2:8000/storage/x.jpg'
+  static String fixImageUrl(String url) {
+    try {
+      final base = Uri.parse(baseUrl);
+      final img = Uri.parse(url);
+      return img
+          .replace(scheme: base.scheme, host: base.host, port: base.port)
+          .toString();
+    } catch (_) {
+      return url;
+    }
+  }
+
   // ─── TOKEN MANAGEMENT ─────────────────────────────────────────
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -22,6 +36,41 @@ class ApiService {
   static Future<void> removeToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+  }
+
+  // ─── USER DATA MANAGEMENT ────────────────────────────────────
+  /// Simpan data user ke SharedPreferences
+  static Future<void> saveUserData(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_data', jsonEncode(userData));
+  }
+
+  /// Ambil data user dari SharedPreferences
+  static Future<Map<String, dynamic>?> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userJson = prefs.getString('user_data');
+    if (userJson == null) return null;
+    return jsonDecode(userJson) as Map<String, dynamic>;
+  }
+
+  /// Hapus data user dari SharedPreferences
+  static Future<void> removeUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_data');
+  }
+
+  /// Ambil profil user terbaru dari API
+  static Future<Map<String, dynamic>> getMe() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/me'),
+      headers: await getHeaders(withAuth: true),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      await saveUserData(data);
+      return data;
+    }
+    throw Exception('Gagal mengambil data profil: ${response.statusCode}');
   }
 
   // ─── HEADERS ──────────────────────────────────────────────────
@@ -69,6 +118,7 @@ class ApiService {
       headers: await getHeaders(withAuth: true),
     );
     await removeToken();
+    await removeUserData();
   }
 
   // ─── PRODUCTS ─────────────────────────────────────────────────

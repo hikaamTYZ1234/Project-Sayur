@@ -166,6 +166,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       if (result['token'] != null) {
                         await ApiService.saveToken(result['token']);
+                        // Simpan data user jika ada
+                        if (result['user'] != null) {
+                          await ApiService.saveUserData(result['user']);
+                        }
                         Navigator.pushReplacementNamed(context, '/home');
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
